@@ -23,10 +23,10 @@
             Konsep yang sedang dipelajari di Form ini:
         </p>
         <ul class="list-disc list-inside space-y-1 text-amber-800">
-            <li><strong>@csrf Token:</strong> Wajib untuk mencegah serangan Cross-Site Request Forgery. Tanpa ini, form akan menghasilkan error <em>419 Page Expired</em>.</li>
+            <li><strong>@@csrf Token:</strong> Wajib untuk mencegah serangan Cross-Site Request Forgery. Tanpa ini, form akan menghasilkan error <em>419 Page Expired</em>.</li>
             <li><strong>Form Request Validation:</strong> Data yang di-submit akan divalidasi oleh class <code class="bg-amber-100 px-1 py-0.5 rounded">TaskRequest</code>.</li>
             <li><strong>old('nama_field'):</strong> Fungsi penolong agar input yang sudah diketik user TIDAK HILANG saat validasi gagal.</li>
-            <li><strong>@error('nama_field'):</strong> Directive Blade untuk menampilkan pesan error khusus pada input yang bermasalah.</li>
+            <li><strong>@@error('nama_field'):</strong> Directive Blade untuk menampilkan pesan error khusus pada input yang bermasalah.</li>
         </ul>
     </div>
 

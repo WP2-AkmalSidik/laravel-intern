@@ -26,7 +26,7 @@
             Konsep yang sedang dipelajari di Form Edit:
         </p>
         <ul class="list-disc list-inside space-y-1 text-indigo-800">
-            <li><strong>HTTP Method Spoofing (@method('PUT')):</strong> Browser HTML hanya mengenal GET & POST. Directive ini membuat input rahasia <code class="bg-indigo-100 px-1 py-0.5 rounded">&lt;input type="hidden" name="_method" value="PUT"&gt;</code> agar Laravel mengenali request ini sebagai method PUT / UPDATE.</li>
+            <li><strong>HTTP Method Spoofing (@@method('PUT')):</strong> Browser HTML hanya mengenal GET & POST. Directive ini membuat input rahasia <code class="bg-indigo-100 px-1 py-0.5 rounded">&lt;input type="hidden" name="_method" value="PUT"&gt;</code> agar Laravel mengenali request ini sebagai method PUT / UPDATE.</li>
             <li><strong>Nilai Default Form:</strong> <code class="bg-indigo-100 px-1 py-0.5 rounded">old('title', $task->title)</code>. Jika validasi gagal, pakai input terbaru user; jika form baru dibuka, pakai data lama dari database!</li>
             <li><strong>Route Model Binding:</strong> URL <code class="bg-indigo-100 px-1 py-0.5 rounded">/tasks/{{ $task->id }}/edit</code> otomatis mencari data di database dan menyediakannya ke controller & view.</li>
         </ul>
