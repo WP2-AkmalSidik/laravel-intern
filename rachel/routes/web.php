@@ -5,7 +5,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemRusakController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('items.index');
 });
 
 // Riwayat kerusakan
