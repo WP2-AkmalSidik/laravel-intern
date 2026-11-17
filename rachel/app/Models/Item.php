@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+
+class Item extends Model
+{
+    protected $fillable = [
+        'nama_barang',
+        'kategori',
+        'jumlah_stok',
+        'kondisi',
+        'lokasi_ruangan',
+        'tanggal_masuk'
+    ];
+
+    protected static function booted(): void
+    {
+        static::created(function ($item) {
+            $item->kode_barang = 'AST' . str_pad(
+                $item->id,
+                4,
+                '0',
+                STR_PAD_LEFT
+            );
+
+            $item->save();
+        });
+    }
+
+    public function getPersentaseKondisiAttribute()
+    {
+        $totalStok = $this->jumlah_stok;
+
+        if ($totalStok <= 0) {
+            return 0;
+        }
+
+        $jumlahRusak = $this->itemRusaks()
+            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+            ->sum('jumlah_rusak');
+
+        return (($totalStok - $jumlahRusak) / $totalStok) * 100;
+    }
+
+    public function hitungKondisi(): void
+    {
+        $totalStok = $this->jumlah_stok;
+
+        if ($totalStok <= 0) {
+            $this->kondisi = 'rusak_berat';
+            $this->save();
+
+            return;
+        }
+
+        $jumlahRusak = $this->itemRusaks()
+            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+            ->sum('jumlah_rusak');
+
+        $persentase = (($totalStok - $jumlahRusak) / $totalStok) * 100;
+
+        $this->kondisi = match (true) {
+            $persentase <= 40 => 'rusak_berat',
+            $persentase <= 60 => 'kurang_baik',
+            $persentase <= 80 => 'cukup_baik',
+            default => 'baik',
+        };
+
+        $this->save();
+    }
+
+    public function getLabelKondisiAttribute(): string
+    {
+        return match ($this->kondisi) {
+            'rusak_berat' => 'Rusak Berat',
+            'kurang_baik' => 'Kurang Baik',
+            'cukup_baik' => 'Cukup Baik',
+            'baik' => 'Baik',
+            default => 'Tidak Diketahui',
+        };
+    }
+
+    public function itemRusaks()
+    {
+        return $this->hasMany(ItemRusak::class);
+    }
+
+    // casts
+    protected function casts()
+    {
+        return ['tanggal_masuk' => 'date'];
+    }
+
+    //scope
+    protected function scopeBaik(Builder $query): Builder
+    {
+        return $query->where('kondisi', 'baik');
+    }
+    protected function scopeRusakBerat(Builder $query): Builder
+    {
+        return $query->where('kondisi', 'rusak_berat');
+    }
+    protected function scopeSearch(Builder $query, ?string $keyword): Builder
+    {
+        if (empty($keyword)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($keyword) {
+            $q->where('nama_barang', 'like', "%{$keyword}%")
+                ->orWhere('kode_barang', 'like', "%{$keyword}%")
+                ->orWhere('kategori', 'like', "%{$keyword}%");
+        });
+    }
+
+    //accessors
+    public function getWarnaBadgeKondisiAttribute(): string
+    {
+        return match ($this->kondisi) {
+            'rusak_berat' => 'bg-rose-100 text-rose-700 border-rose-300',
+            'kurang_baik' => 'bg-orange-100 text-orange-700 border-orange-300',
+            'cukup_baik' => 'bg-yellow-100 text-yellow-700 border-yellow-300',
+            'baik' => 'bg-green-100 text-green-700 border-green-300',
+            default => 'bg-gray-100 text-gray-700 border-gray-300',
+        };
+    }
+    public function getJumlahRusakAktifAttribute(): int
+    {
+        return $this->itemRusaks()
+            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+            ->sum('jumlah_rusak');
+    }
+
+}
