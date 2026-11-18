@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Daftar Surat')
@@ -16,12 +15,6 @@
         + Tambah Surat
     </a>
 </div>
-
-@if (session('success'))
-    <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4">
-        {{ session('success') }}
-    </div>
-@endif
 
 @if ($errors->any())
     <div class="bg-red-100 text-red-700 px-4 py-3 rounded-lg mb-4">

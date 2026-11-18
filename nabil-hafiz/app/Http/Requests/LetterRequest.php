@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class LetterRequest extends FormRequest
 {
@@ -20,10 +21,16 @@ class LetterRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
         return [
-            'nomor_surat' => ['required', 'string', 'max:255'],
+            'nomor_surat' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('letters', 'nomor_surat')->ignore($this->route('letter')),
+            ],
             'perihal' => ['required', 'string', 'max:255'],
             'pengirim' => ['required', 'string', 'max:255'],
             'penerima' => ['required', 'string', 'max:255'],
@@ -32,6 +39,7 @@ class LetterRequest extends FormRequest
             'tanggal_surat' => ['required', 'date'],
         ];
     }
+
     public function messages (): array
     {
         return [

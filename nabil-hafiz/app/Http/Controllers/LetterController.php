@@ -69,19 +69,19 @@ class LetterController extends Controller
             ->with('success', 'Data surat berhasil dihapus!');
     }
 
-    public function summary()
-    {
-        return response()->json([
-            'success' => true,
-            'message' => 'Ringkasan data surat berhasil diambil',
-            'data'=>[
-                'total' => Letter::count(),
-                'masuk' => Letter::where('jenis_surat', 'masuk')->count(),
-                'keluar' => Letter::where('jenis_surat', 'keluar')->count(),
-                'belum_diproses' => Letter::where('status_disposisi', 'belum_diproses')->count(),
-                'diproses' => Letter::where('status_disposisi', 'diproses')->count(),
-                'selesai' => Letter::where('status_disposisi', 'selesai')->count(),
-            ]
-        ]);
-    }
+    public function apiSummary()
+{
+    return response()->json([
+        'success' => true,
+        'message' => 'Ringkasan data surat berhasil diambil',
+        'data' => [
+            'total' => Letter::count(),
+            'masuk' => Letter::where('jenis_surat', 'masuk')->count(),
+            'keluar' => Letter::where('jenis_surat', 'keluar')->count(),
+            'belum_diproses' => Letter::where('status_disposisi', 'belum_diproses')->count(),
+            'diproses' => Letter::where('status_disposisi', 'diproses')->count(),
+            'selesai' => Letter::where('status_disposisi', 'selesai')->count(),
+        ]
+    ], 200);
+}
 }
