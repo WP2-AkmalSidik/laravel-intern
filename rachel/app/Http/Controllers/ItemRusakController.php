@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\ItemRusak;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 class ItemRusakController extends Controller
@@ -74,9 +75,13 @@ class ItemRusakController extends Controller
                 ->withInput();
         }
 
-        $item->itemRusaks()->create($validated);
+        DB::transaction(function () use ($item, $validated) {
 
-        $item->hitungKondisi();
+            $item->itemRusaks()->create($validated);
+
+            $item->hitungKondisi();
+
+        });
 
         return redirect()
             ->route('items.index')
@@ -115,9 +120,13 @@ class ItemRusakController extends Controller
             }
         }
 
-        $itemRusak->update($validated);
+        DB::transaction(function () use ($item, $itemRusak, $validated) {
 
-        $item->hitungKondisi();
+            $itemRusak->update($validated);
+
+            $item->hitungKondisi();
+
+        });
 
         return redirect()
             ->route('items.rusak.index')

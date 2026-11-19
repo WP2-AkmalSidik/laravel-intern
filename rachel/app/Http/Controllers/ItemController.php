@@ -8,6 +8,7 @@ use App\Models\Item;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\ItemRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
@@ -60,33 +61,38 @@ class ItemController extends Controller
     {
         $validatedData = $request->validated();
 
-        // Cari barang dengan identitas yang sama
-        $item = Item::whereRaw('LOWER(TRIM(nama_barang)) = ?', [
-            strtolower(trim($validatedData['nama_barang']))
-        ])
-            ->where('kategori', $validatedData['kategori'])
-            ->whereRaw('LOWER(TRIM(lokasi_ruangan)) = ?', [
-                strtolower(trim($validatedData['lokasi_ruangan']))
+        $pesan = DB::transaction(function () use ($validatedData) {
+
+            // Cari barang dengan identitas yang sama
+            $item = Item::whereRaw('LOWER(TRIM(nama_barang)) = ?', [
+                strtolower(trim($validatedData['nama_barang']))
             ])
-            ->first();
+                ->where('kategori', $validatedData['kategori'])
+                ->whereRaw('LOWER(TRIM(lokasi_ruangan)) = ?', [
+                    strtolower(trim($validatedData['lokasi_ruangan']))
+                ])
+                ->first();
 
-        if ($item) {
+            if ($item) {
 
-            // Jika barang sudah ada, tambahkan stok
-            $item->increment('jumlah_stok', $validatedData['jumlah_stok']);
+                // Jika barang sudah ada, tambahkan stok
+                $item->increment('jumlah_stok', $validatedData['jumlah_stok']);
 
-            $pesan = 'Stok barang berhasil ditambahkan!';
+                $pesan = 'Stok barang berhasil ditambahkan!';
 
-        } else {
+            } else {
 
-            // Jika belum ada, buat data barang baru
-            $item = Item::create($validatedData);
+                // Jika belum ada, buat data barang baru
+                $item = Item::create($validatedData);
 
-            $pesan = 'Aset baru berhasil dibuat dan disimpan!';
-        }
+                $pesan = 'Aset baru berhasil dibuat dan disimpan!';
+            }
 
-        // Hitung ulang kondisi barang
-        $item->hitungKondisi();
+            // Hitung ulang kondisi barang
+            $item->hitungKondisi();
+
+            return $pesan;
+        });
 
         return redirect()
             ->route('items.index')
@@ -128,9 +134,13 @@ class ItemController extends Controller
                 ->withInput();
         }
 
-        $item->update($validatedData);
+        DB::transaction(function () use ($item, $validatedData) {
 
-        $item->hitungKondisi();
+            $item->update($validatedData);
+
+            $item->hitungKondisi();
+
+        });
 
         return redirect()
             ->route('items.index')
