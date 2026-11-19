@@ -26,7 +26,7 @@ class Item extends Model
                 STR_PAD_LEFT
             );
 
-            $item->save();
+            $item->saveQuietly();
         });
     }
 
