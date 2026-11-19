@@ -166,7 +166,7 @@
                 </div>
 
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Dibiarkan</span>
+                    <span class="text-gray-600">Belum Diperbaiki</span>
                     <span class="font-semibold text-red-600">
                         {{ number_format($ringkasan['rekap_kerusakan']['dibiarkan']) }}
                     </span>
@@ -249,23 +249,9 @@
                             </td>
 
                             <td class="px-4 py-3">
-                                @if ($item->persentase_kondisi <= 40)
-                                    <span class="px-2 py-1 rounded-full bg-red-100 text-red-700">
-                                        Rusak Berat
-                                    </span>
-                                @elseif ($item->persentase_kondisi <= 60)
-                                    <span class="px-2 py-1 rounded-full bg-orange-100 text-orange-700">
-                                        Kurang Baik
-                                    </span>
-                                @elseif ($item->persentase_kondisi <= 80)
-                                    <span class="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
-                                        Cukup Baik
-                                    </span>
-                                @else
-                                    <span class="px-2 py-1 rounded-full bg-green-100 text-green-700">
-                                        Baik
-                                    </span>
-                                @endif
+                                <span class="px-2 py-1 rounded-full {{ $item->warna_badge_kondisi }}">
+                                    {{ $item->label_kondisi }}
+                                </span>
                             </td>
 
                             <td class="px-4 py-3">
@@ -273,7 +259,7 @@
                             </td>
 
                             <td class="px-4 py-3 whitespace-nowrap">
-                                {{ $item->tanggal_masuk }}
+                                {{ $item->tanggal_masuk?->format('d-m-Y') }}
                             </td>
 
                         </tr>
@@ -345,29 +331,14 @@
                             <td class="px-4 py-3">
                                 {{ $itemRusak->keterangan ?? '-' }}
                             </td>
-
                             <td class="px-4 py-3 whitespace-nowrap">
-                                {{ $itemRusak->tanggal_rusak }}
+                                {{ $itemRusak->tanggal_rusak?->format('d-m-Y') }}
                             </td>
 
                             <td class="px-4 py-3">
-                                @if ($itemRusak->status === 'perbaikan')
-                                    <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                                        Dalam Perbaikan
-                                    </span>
-                                @elseif ($itemRusak->status === 'dibiarkan')
-                                    <span class="px-2 py-1 rounded-full bg-red-100 text-red-700">
-                                        Dibiarkan
-                                    </span>
-                                @elseif ($itemRusak->status === 'selesai_diperbaiki')
-                                    <span class="px-2 py-1 rounded-full bg-green-100 text-green-700">
-                                        Selesai Diperbaiki
-                                    </span>
-                                @else
-                                    <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                                        {{ $itemRusak->status }}
-                                    </span>
-                                @endif
+                                <span class="px-2 py-1 rounded-full {{ $itemRusak->warna_badge_status }}">
+                                    {{ $itemRusak->label_status }}
+                                </span>
                             </td>
 
                         </tr>

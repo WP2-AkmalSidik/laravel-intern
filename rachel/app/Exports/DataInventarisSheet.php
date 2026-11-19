@@ -47,7 +47,7 @@ class DataInventarisSheet implements FromCollection, WithTitle, WithStyles, With
                     round($item->persentase_kondisi, 2) . '%',
                     $item->label_kondisi,
                     $item->lokasi_ruangan,
-                    $item->tanggal_masuk,
+                    $item->tanggal_masuk?->format('d-m-Y'),
                 ];
             })->all(),
         ]);

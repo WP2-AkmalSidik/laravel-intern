@@ -21,25 +21,11 @@ class LaporanService
 
         $query->withSum([
             'itemRusaks as total_rusak_aktif' => function ($query) {
-                $query->whereIn('status', ['perbaikan', 'dibiarkan']);
+                $query->aktif();
             }
         ], 'jumlah_rusak');
 
-        $items = $query->get();
-        $items->each(function ($item) {
-            $totalRusakAktif = (int) ($item->total_rusak_aktif ?? 0);
-
-            $stokBaik = $item->jumlah_stok - $totalRusakAktif;
-
-            $persentase = $item->jumlah_stok > 0
-                ? ($stokBaik / $item->jumlah_stok) * 100
-                : 0;
-
-            $item->setAttribute('stok_baik', $stokBaik);
-            $item->setAttribute('persentase_kondisi', $persentase);
-        });
-
-        return $items;
+        return $query->get();
     }
 
     public function getKerusakanData(?string $from = null, ?string $to = null)
@@ -69,15 +55,9 @@ class LaporanService
         foreach ($items as $item) {
             $persentase = $item->persentase_kondisi;
 
-            if ($persentase <= 40) {
-                $rekap['rusak_berat']++;
-            } elseif ($persentase <= 60) {
-                $rekap['kurang_baik']++;
-            } elseif ($persentase <= 80) {
-                $rekap['cukup_baik']++;
-            } else {
-                $rekap['baik']++;
-            }
+            $kondisi = Item::tentukanKondisi($persentase);
+
+            $rekap[$kondisi]++;
         }
 
         return $rekap;

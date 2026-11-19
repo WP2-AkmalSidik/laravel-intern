@@ -32,7 +32,7 @@
         </div>
 
         <div class="bg-white p-5 rounded-lg shadow">
-            <p class="text-gray-500">Sedang Diperbaiki</p>
+            <p class="text-gray-500">Dalam Perbaikan</p>
             <h3 class="text-2xl font-bold text-yellow-600">
                 {{ $stats['perbaikan'] }}
             </h3>
@@ -67,7 +67,7 @@
                 <option value="">Semua Status</option>
 
                 <option value="perbaikan" {{ $statusFilter == 'perbaikan' ? 'selected' : '' }}>
-                    Sedang Diperbaiki
+                    Dalam Perbaikan
                 </option>
 
                 <option value="dibiarkan" {{ $statusFilter == 'dibiarkan' ? 'selected' : '' }}>

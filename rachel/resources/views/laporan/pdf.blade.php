@@ -119,11 +119,22 @@
 
         <p>Sistem Informasi Inventaris Barang</p>
 
+        @php
+            $periode = match (true) {
+                !empty($from) && !empty($to) => \Carbon\Carbon::parse($from)->format('d-m-Y') .
+                    ' s.d. ' .
+                    \Carbon\Carbon::parse($to)->format('d-m-Y'),
+
+                !empty($from) => 'Mulai ' . \Carbon\Carbon::parse($from)->format('d-m-Y'),
+
+                !empty($to) => 'Sampai ' . \Carbon\Carbon::parse($to)->format('d-m-Y'),
+
+                default => 'Semua Data',
+            };
+        @endphp
+
         <p>
-            Periode:
-            {{ $from ? \Carbon\Carbon::parse($from)->format('d-m-Y') : 'Awal' }}
-            -
-            {{ $to ? \Carbon\Carbon::parse($to)->format('d-m-Y') : 'Sekarang' }}
+            Periode: {{ $periode }}
         </p>
     </div>
 
@@ -235,7 +246,7 @@
                 </tr>
 
                 <tr>
-                    <td>Dibiarkan</td>
+                    <td>Belum Diperbaiki</td>
                     <td>{{ number_format($ringkasan['rekap_kerusakan']['dibiarkan']) }}</td>
                 </tr>
 
@@ -281,19 +292,11 @@
                         <td>{{ number_format($item->persentase_kondisi, 1) }}%</td>
 
                         <td>
-                            @if ($item->persentase_kondisi <= 40)
-                                Rusak Berat
-                            @elseif ($item->persentase_kondisi <= 60)
-                                Kurang Baik
-                            @elseif ($item->persentase_kondisi <= 80)
-                                Cukup Baik
-                            @else
-                                Baik
-                            @endif
+                            {{ $item->label_kondisi }}
                         </td>
 
                         <td>{{ $item->lokasi_ruangan }}</td>
-                        <td>{{ $item->tanggal_masuk }}</td>
+                        <td>{{ $item->tanggal_masuk?->format('d-m-Y') }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -338,18 +341,10 @@
 
                         <td>{{ $itemRusak->keterangan ?? '-' }}</td>
 
-                        <td>{{ $itemRusak->tanggal_rusak }}</td>
+                        <td>{{ $itemRusak->tanggal_rusak?->format('d-m-Y') }}</td>
 
                         <td>
-                            @if ($itemRusak->status === 'perbaikan')
-                                Dalam Perbaikan
-                            @elseif ($itemRusak->status === 'dibiarkan')
-                                Dibiarkan
-                            @elseif ($itemRusak->status === 'selesai_diperbaiki')
-                                Selesai Diperbaiki
-                            @else
-                                {{ $itemRusak->status }}
-                            @endif
+                            {{ $itemRusak->label_status }}
                         </td>
                     </tr>
 

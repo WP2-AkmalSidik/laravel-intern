@@ -30,19 +30,25 @@ class Item extends Model
         });
     }
 
-    public function getPersentaseKondisiAttribute()
+    public function getPersentaseKondisiAttribute(): float
     {
-        $totalStok = $this->jumlah_stok;
+        $totalStok = (int) $this->jumlah_stok;
 
         if ($totalStok <= 0) {
             return 0;
         }
 
-        $jumlahRusak = $this->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
-            ->sum('jumlah_rusak');
+        return ($this->stok_baik / $totalStok) * 100;
+    }
 
-        return (($totalStok - $jumlahRusak) / $totalStok) * 100;
+    public static function tentukanKondisi(float $persentase): string
+    {
+        return match (true) {
+            $persentase <= 40 => 'rusak_berat',
+            $persentase <= 60 => 'kurang_baik',
+            $persentase <= 80 => 'cukup_baik',
+            default => 'baik',
+        };
     }
 
     public function hitungKondisi(): void
@@ -57,17 +63,12 @@ class Item extends Model
         }
 
         $jumlahRusak = $this->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+            ->aktif()
             ->sum('jumlah_rusak');
 
         $persentase = (($totalStok - $jumlahRusak) / $totalStok) * 100;
 
-        $this->kondisi = match (true) {
-            $persentase <= 40 => 'rusak_berat',
-            $persentase <= 60 => 'kurang_baik',
-            $persentase <= 80 => 'cukup_baik',
-            default => 'baik',
-        };
+        $this->kondisi = self::tentukanKondisi($persentase);
 
         $this->save();
     }
@@ -129,9 +130,20 @@ class Item extends Model
     }
     public function getJumlahRusakAktifAttribute(): int
     {
-        return $this->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+        // Gunakan hasil withSum() jika sudah tersedia
+        if (array_key_exists('total_rusak_aktif', $this->attributes)) {
+            return (int) ($this->attributes['total_rusak_aktif'] ?? 0);
+        }
+
+        // Fallback jika data agregasi belum tersedia
+        return (int) $this->itemRusaks()
+            ->aktif()
             ->sum('jumlah_rusak');
+    }
+
+    public function getStokBaikAttribute(): int
+    {
+        return (int) $this->jumlah_stok - $this->jumlah_rusak_aktif;
     }
 
 }

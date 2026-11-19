@@ -53,7 +53,7 @@ class RiwayatKerusakanSheet implements FromCollection, WithTitle, WithStyles, Wi
                 $itemRusak->item->nama_barang ?? '-',
                 $itemRusak->jumlah_rusak,
                 $itemRusak->keterangan ?? '-',
-                $itemRusak->tanggal_rusak,
+                $itemRusak->tanggal_rusak?->format('d-m-Y'),
                 $itemRusak->label_status,
             ];
         })->all();

@@ -104,6 +104,12 @@ class ItemController extends Controller
      */
     public function show(Item $item): View
     {
+        $item->loadSum([
+            'itemRusaks as total_rusak_aktif' => function ($query) {
+                $query->aktif();
+            }
+        ], 'jumlah_rusak');
+
         return view('items.show', compact('item'));
     }
 
@@ -123,7 +129,7 @@ class ItemController extends Controller
         $validatedData = $request->validated();
 
         $totalRusakAktif = $item->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+            ->aktif()
             ->sum('jumlah_rusak');
 
         if ($validatedData['jumlah_stok'] < $totalRusakAktif) {
