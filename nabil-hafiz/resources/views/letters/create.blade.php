@@ -12,7 +12,7 @@
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <form action="{{ route('letters.store') }}" method="POST">
+        <form action="{{ route('letters.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="space-y-4">
@@ -62,6 +62,25 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-medium mb-1">Departemen</label>
+
+                    <select name="department_id" class="w-full border rounded-lg px-3 py-2">
+                        <option value="">Pilih Departemen</option>
+
+                        @foreach ($departments as $department)
+                            <option value="{{ $department->id }}"
+                                {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                                {{ $department->nama_departemen }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('department_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label class="block text-sm font-medium mb-1">Jenis Surat</label>
                     <select name="jenis_surat" class="w-full border rounded-lg px-3 py-2">
                         <option value="">Pilih Jenis Surat</option>
@@ -96,7 +115,19 @@
                     @enderror
                 </div>
 
+              <div>
+                <label class="block text-sm font-medium mb-1">File Surat (PDF)</label>
+
+                <input type="file"
+                    name="file_surat"
+                    accept=".pdf,application/pdf"
+                    class="w-full border rounded-lg px-3 py-2">
+
+                @error('file_surat')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
+
 
             <div class="flex justify-end gap-3 mt-6">
                 <a href="{{ route('letters.index') }}"
