@@ -95,15 +95,15 @@ class Item extends Model
     }
 
     //scope
-    protected function scopeBaik(Builder $query): Builder
+    public function scopeBaik(Builder $query): Builder
     {
         return $query->where('kondisi', 'baik');
     }
-    protected function scopeRusakBerat(Builder $query): Builder
+    public function scopeRusakBerat(Builder $query): Builder
     {
         return $query->where('kondisi', 'rusak_berat');
     }
-    protected function scopeSearch(Builder $query, ?string $keyword): Builder
+    public function scopeSearch(Builder $query, ?string $keyword): Builder
     {
         if (empty($keyword)) {
             return $query;
