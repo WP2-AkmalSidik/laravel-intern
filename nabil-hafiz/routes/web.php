@@ -9,6 +9,17 @@ Route::get('/', function () {
     return redirect()->route('letters.index');
 });
 
+
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LetterController;
+use App\Http\Controllers\AuthController;
+
+Route::get('/', function () {
+    return redirect()->route('letters.index');
+});
+
 // Route login
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])
@@ -36,6 +47,10 @@ Route::middleware(['auth'])->group(function () {
         ->except(['index', 'show']);
 });
 
-// Route detail surat (diletakkan paling bawah)
+// Route detail surat
 Route::get('/letters/{letter}', [LetterController::class, 'show'])
     ->name('letters.show');
+
+
+
+

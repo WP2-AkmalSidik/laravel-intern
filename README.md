@@ -54,9 +54,10 @@ Setiap peserta magang membuat proyek Laravel mandiri di root repository sejajar 
 
 ## 📋 Spesifikasi Tugas & Modul
 
-Detail lengkap instruksi pengerjaan tugas langkah demi langkah (*step-by-step*), pilihan topik kasus studi, dan kriteria kelulusan PR dapat dibaca di:
+Detail instruksi pengerjaan tugas langkah demi langkah (*step-by-step*), studi kasus, dan kriteria kelulusan PR:
 
-👉 **[TUGAS_MAGANG.md](./TUGAS_MAGANG.md)**
+- 👉 **[TUGAS_MAGANG.md](./TUGAS_MAGANG.md)** — **Fase 1:** Fondasi MVC, CRUD, Eloquent ORM, Validasi, Request & Response
+- 👉 **[TUGAS_FASE_2.md](./TUGAS_FASE_2.md)** — **Fase 2:** Relasi Database (Eloquent), Upload File & Media, Middleware Protection, & Feature Tests
 
 ---
 
@@ -81,15 +82,16 @@ cd <nama-kamu>
 # 5. Jalankan migrasi awal
 php artisan migrate
 
-# 6. Kerjakan tugas sesuai panduan TUGAS_MAGANG.md
+# 6. Kerjakan tugas sesuai panduan TUGAS_MAGANG.md & TUGAS_FASE_2.md
 ```
 
 ---
 
 ## 👥 Status Pengumpulan Tugas Peserta
 
-| Nama Peserta | Folder Kerja | Branch Kerja | Status Tugas |
-| :--- | :--- | :--- | :--- |
-| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai (Referensi)** |
-| Peserta 1 | `<nama-1>/` | `intern/<nama-1>` | 🔄 Dalam Pengerjaan |
-| Peserta 2 | `<nama-2>/` | `intern/<nama-2>` | 🔄 Dalam Pengerjaan |
+| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Catatan Review Mentor | Status Fase 2 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai (Referensi)** | — | 🌟 Benchmark |
+| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (Nilai: 95 / A+)** | [Review Rachel](./rachel/CATATAN_REVIEW_MENTOR.md) | 🚀 Siap Fase 2 |
+| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ⚠️ **Perlu Perbaikan (Nilai: 83)** | [Review Nabil](./nabil-hafiz/CATATAN_REVIEW_MENTOR.md) | ⏳ Selesaikan Catatan |
+| **Ridwan** | `ridwan/` | `intern/ridwan` | ⚠️ **Perlu Perbaikan (Nilai: 78)** | [Review Ridwan](./ridwan/CATATAN_REVIEW_MENTOR.md) | ⏳ Selesaikan Catatan |

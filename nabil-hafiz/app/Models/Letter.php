@@ -77,6 +77,7 @@ class Letter extends Model
             default => 'Jenis surat tidak diketahui',
         };
     }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);

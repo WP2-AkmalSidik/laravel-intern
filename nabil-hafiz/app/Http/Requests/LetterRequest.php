@@ -8,19 +8,11 @@ use Illuminate\Validation\Rule;
 
 class LetterRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -28,8 +20,8 @@ class LetterRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('letters', 'nomor_surat')->ignore($this->route('letter'))
-                ],
+                Rule::unique('letters', 'nomor_surat')->ignore($this->route('letter')),
+            ],
             'perihal' => ['required', 'string', 'max:255'],
             'pengirim' => ['required', 'string', 'max:255'],
             'penerima' => ['required', 'string', 'max:255'],
@@ -40,6 +32,7 @@ class LetterRequest extends FormRequest
             'file_surat' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
         ];
     }
+
     public function messages(): array
     {
         return [
@@ -72,6 +65,4 @@ class LetterRequest extends FormRequest
             'file_surat' => 'File Surat',
         ];
     }
-
-
 }

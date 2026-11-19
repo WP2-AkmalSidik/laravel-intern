@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Letter;
 use App\Models\Department;
 use Illuminate\Http\Request;
@@ -29,10 +30,11 @@ class LetterController extends Controller
     public function create()
     {
         $departments = Department::orderBy('nama_departemen')->get();
+
         return view('letters.create', compact('departments'));
     }
 
-   public function store(LetterRequest $request)
+    public function store(LetterRequest $request)
     {
         $validated = $request->validated();
 
@@ -56,10 +58,11 @@ class LetterController extends Controller
     public function edit(Letter $letter)
     {
         $departments = Department::orderBy('nama_departemen')->get();
+
         return view('letters.edit', compact('letter', 'departments'));
     }
 
-   public function update(LetterRequest $request, Letter $letter)
+    public function update(LetterRequest $request, Letter $letter)
     {
         $validated = $request->validated();
 
@@ -99,14 +102,14 @@ class LetterController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Ringkasan data surat berhasil diambil',
-            'data'=>[
+            'data' => [
                 'total' => Letter::count(),
                 'masuk' => Letter::where('jenis_surat', 'masuk')->count(),
                 'keluar' => Letter::where('jenis_surat', 'keluar')->count(),
                 'belum_diproses' => Letter::where('status_disposisi', 'belum_diproses')->count(),
                 'diproses' => Letter::where('status_disposisi', 'diproses')->count(),
                 'selesai' => Letter::where('status_disposisi', 'selesai')->count(),
-            ]
-        ]);
+            ],
+        ], 200);
     }
 }
