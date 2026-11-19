@@ -1,3 +1,15 @@
+
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LetterController;
+use App\Http\Controllers\AuthController;
+
+Route::get('/', function () {
+    return redirect()->route('letters.index');
+});
+
+
 <?php
 
 use Illuminate\Support\Facades\Route;
