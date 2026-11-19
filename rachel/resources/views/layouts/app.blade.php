@@ -42,6 +42,13 @@
         : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
                     Riwayat Kerusakan
                 </a>
+                <a href="{{ route('laporan.index') }}"
+                    class="px-4 py-2 rounded-lg transition
+    {{ request()->routeIs('laporan.*')
+        ? 'bg-blue-50 text-[#2563EB] font-bold'
+        : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
+                    Laporan
+                </a>
             </div>
         </div>
     </nav>

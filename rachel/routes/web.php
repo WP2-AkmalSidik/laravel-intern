@@ -3,10 +3,22 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemRusakController;
+use App\Http\Controllers\LaporanController;
 
 Route::get('/', function () {
     return redirect()->route('items.index');
 });
+
+// Laporan
+Route::get('/laporan', [LaporanController::class, 'index'])
+    ->name('laporan.index');
+
+// Ekspor Laporan
+Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])
+    ->name('laporan.pdf');
+
+Route::get('/laporan/excel', [LaporanController::class, 'exportExcel'])
+    ->name('laporan.excel');
 
 // Riwayat kerusakan
 Route::get('/items/rusak', [ItemRusakController::class, 'index'])
@@ -34,3 +46,4 @@ Route::resource('items', ItemController::class);
 //response api json
 Route::get('/api/items-summary', [ItemController::class, 'apiSummary'])
     ->name('items.api-summary');
+
