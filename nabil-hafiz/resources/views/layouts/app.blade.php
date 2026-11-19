@@ -23,10 +23,12 @@
 
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
+    {{-- HEADER --}}
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
 
+                {{-- LOGO --}}
                 <div class="flex items-center gap-3">
                     <a href="{{ route('letters.index') }}" class="flex items-center gap-2 group">
 
@@ -49,17 +51,41 @@
                     </a>
                 </div>
 
+                {{-- NAVIGATION --}}
                 <nav class="flex items-center gap-2 sm:gap-4 text-sm font-medium">
 
+                    {{-- MENU ARSIP SURAT: SEMUA PENGUNJUNG --}}
                     <a href="{{ route('letters.index') }}"
                        class="px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('letters.index') || request()->routeIs('letters.show') || request()->routeIs('letters.edit') ? 'bg-red-50 text-red-700 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                         📋 Arsip Surat
                     </a>
 
-                    <a href="{{ route('letters.create') }}"
-                       class="px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('letters.create') ? 'bg-red-50 text-red-700 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
-                        ➕ Tambah Surat
-                    </a>
+                    {{-- MENU KHUSUS USER LOGIN --}}
+                    @auth
+
+                        <a href="{{ route('letters.create') }}"
+                           class="px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('letters.create') ? 'bg-red-50 text-red-700 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                            ➕ Tambah Surat
+                        </a>
+
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+
+                            <button type="submit"
+                                    class="px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
+                                Logout
+                            </button>
+                        </form>
+
+                    {{-- MENU KHUSUS GUEST --}}
+                    @else
+
+                        <a href="{{ route('login') }}"
+                           class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">
+                            Login Staf
+                        </a>
+
+                    @endauth
 
                 </nav>
 
@@ -67,6 +93,7 @@
         </div>
     </header>
 
+    {{-- NOTIFICATION --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6">
 
         @if (session('success'))
@@ -117,18 +144,28 @@
 
     </div>
 
+    {{-- MAIN CONTENT --}}
     <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-4 pb-12">
         @yield('content')
     </main>
 
+    {{-- FOOTER --}}
     <footer class="bg-white border-t border-slate-200 mt-auto py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+
             <div>
-                <strong>Proyek Latihan Magang:</strong> Nabil (Folder: <code class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded">C:\laragon\www\laravel-intern\nabil-hafiz</code>)
+                <strong>Proyek Latihan Magang:</strong>
+                Nabil (Folder:
+                <code class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded">C:\laragon\www\laravel-intern\nabil-hafiz</code>)
             </div>
+
             <div>
-                Mencakup: <span class="font-medium text-slate-700">Architecture, MVC, Routing & Controller, Eloquent ORM, Validation, Request & Response</span>
+                Mencakup:
+                <span class="font-medium text-slate-700">
+                    Architecture, MVC, Routing & Controller, Eloquent ORM, Validation, Request & Response
+                </span>
             </div>
+
         </div>
     </footer>
 

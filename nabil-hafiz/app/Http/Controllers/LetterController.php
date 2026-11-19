@@ -1,16 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Letter;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Http\Requests\LetterRequest;
+use Illuminate\Support\Facades\Storage;
 
 class LetterController extends Controller
 {
     public function index(Request $request)
     {
-        $letters = Letter::search($request->query('search'))
+        $letters = Letter::with('department')
+            ->search($request->query('search'))
             ->when($request->query('jenis_surat'), function ($query, $jenis) {
                 $query->where('jenis_surat', $jenis);
             })
@@ -26,18 +28,24 @@ class LetterController extends Controller
 
     public function create()
     {
-        return view('letters.create');
+        $departments = Department::orderBy('nama_departemen')->get();
+        return view('letters.create', compact('departments'));
     }
 
    public function store(LetterRequest $request)
     {
-    $validated = $request->validated();
+        $validated = $request->validated();
 
-    Letter::create($validated);
+        if ($request->hasFile('file_surat')) {
+            $validated['file_surat'] = $request->file('file_surat')
+                ->store('letters', 'public');
+        }
 
-    return redirect()
-        ->route('letters.index')
-        ->with('success', 'Data surat berhasil ditambahkan!');
+        Letter::create($validated);
+
+        return redirect()
+            ->route('letters.index')
+            ->with('success', 'Data surat berhasil ditambahkan!');
     }
 
     public function show(Letter $letter)
@@ -47,21 +55,38 @@ class LetterController extends Controller
 
     public function edit(Letter $letter)
     {
-        return view('letters.edit', compact('letter'));
+        $departments = Department::orderBy('nama_departemen')->get();
+        return view('letters.edit', compact('letter', 'departments'));
     }
 
    public function update(LetterRequest $request, Letter $letter)
-{
-    $validated = $request->validated();
+    {
+        $validated = $request->validated();
 
-    $letter->update($validated);
+        if ($request->hasFile('file_surat')) {
+            if ($letter->file_surat) {
+                Storage::disk('public')->delete($letter->file_surat);
+            }
 
-    return redirect()
-        ->route('letters.index')
-        ->with('success', 'Data surat berhasil diperbarui!');
-}
+            $validated['file_surat'] = $request->file('file_surat')
+                ->store('letters', 'public');
+        } else {
+            unset($validated['file_surat']);
+        }
+
+        $letter->update($validated);
+
+        return redirect()
+            ->route('letters.index')
+            ->with('success', 'Data surat berhasil diperbarui!');
+    }
+
     public function destroy(Letter $letter)
     {
+        if ($letter->file_surat) {
+            Storage::disk('public')->delete($letter->file_surat);
+        }
+
         $letter->delete();
 
         return redirect()
@@ -69,7 +94,7 @@ class LetterController extends Controller
             ->with('success', 'Data surat berhasil dihapus!');
     }
 
-    public function summary()
+    public function apiSummary()
     {
         return response()->json([
             'success' => true,
