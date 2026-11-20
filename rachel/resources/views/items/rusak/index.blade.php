@@ -16,9 +16,12 @@
             </p>
         </div>
 
-        <a href="{{ route('items.index') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            + Catat Kerusakan
-        </a>
+        {{-- Khusus Admin --}}
+        @auth
+            <a href="{{ route('items.index') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                + Catat Kerusakan
+            </a>
+        @endauth
     </div>
 
     {{-- Statistik --}}
@@ -110,7 +113,7 @@
                     <th class="px-4 py-3">Tanggal Rusak</th>
                     <th class="px-4 py-3">Keterangan</th>
                     <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3">Aksi</th>
+                    @auth <th class="px-4 py-3">Aksi</th>@endauth
                 </tr>
             </thead>
 
@@ -149,31 +152,31 @@
                                 {{ $itemRusak->label_status }}
                             </span>
                         </td>
+                        @auth
+                            <td class="px-4 py-3">
+                                <a href="{{ route('items.rusak.edit', [
+                                    'item' => $itemRusak->item_id,
+                                    'itemRusak' => $itemRusak->id,
+                                ]) }}"
+                                    title="Edit catatan kerusakan"
+                                    class="inline-flex items-center p-2 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition">
 
-                        <td class="px-4 py-3">
-                            <a href="{{ route('items.rusak.edit', [
-                                'item' => $itemRusak->item_id,
-                                'itemRusak' => $itemRusak->id,
-                            ]) }}"
-                                title="Edit catatan kerusakan"
-                                class="inline-flex items-center p-2 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M12 20h9" />
+                                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                                    </svg>
 
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M12 20h9" />
-                                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
-                                </svg>
-
-                            </a>
-                        </td>
-
+                                </a>
+                            </td>
+                        @endauth
                     </tr>
 
                 @empty
 
                     <tr>
-                        <td colspan="8" class="text-center py-8 text-gray-500">
+                        <td colspan="@auth 8 @else 7 @endauth" class="text-center py-8 text-gray-500">
                             Belum ada riwayat kerusakan barang.
                         </td>
                     </tr>

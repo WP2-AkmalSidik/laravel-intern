@@ -14,10 +14,11 @@
                 Kelola seluruh data aset dan barang.
             </p>
         </div>
-
-        <a href="{{ route('items.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            + Tambah Barang
-        </a>
+        @auth
+            <a href="{{ route('items.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                + Tambah Barang
+            </a>
+        @endauth
     </div>
 
     {{-- Statistik --}}
@@ -235,30 +236,33 @@
                         <td class="px-4 py-3">
                             <div class="flex flex-wrap items-center gap-2">
 
-                                {{-- Lihat --}}
+                                {{-- Lihat: Publik dan Admin --}}
                                 <a href="{{ route('items.show', $item->id) }}"
                                     class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition">
                                     Lihat
                                 </a>
 
-                                {{-- Edit --}}
-                                <a href="{{ route('items.edit', $item->id) }}"
-                                    class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-medium hover:bg-amber-100 transition">
-                                    Edit
-                                </a>
+                                {{-- Khusus Admin --}}
+                                @auth
+                                    {{-- Edit --}}
+                                    <a href="{{ route('items.edit', $item->id) }}"
+                                        class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-medium hover:bg-amber-100 transition">
+                                        Edit
+                                    </a>
 
-                                {{-- Catat Rusak --}}
-                                <a href="{{ route('items.rusak.create', $item->id) }}"
-                                    class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 text-xs font-medium hover:bg-orange-100 transition">
-                                    Catat Rusak
-                                </a>
+                                    {{-- Catat Rusak --}}
+                                    <a href="{{ route('items.rusak.create', $item->id) }}"
+                                        class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 text-xs font-medium hover:bg-orange-100 transition">
+                                        Catat Rusak
+                                    </a>
 
-                                {{-- Hapus --}}
-                                <button type="button"
-                                    onclick="bukaModalHapus('{{ route('items.destroy', $item->id) }}', @js($item->nama_barang))"
-                                    class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition">
-                                    Hapus
-                                </button>
+                                    {{-- Hapus --}}
+                                    <button type="button"
+                                        onclick="bukaModalHapus('{{ route('items.destroy', $item->id) }}', @js($item->nama_barang))"
+                                        class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition">
+                                        Hapus
+                                    </button>
+                                @endauth
 
                             </div>
                         </td>

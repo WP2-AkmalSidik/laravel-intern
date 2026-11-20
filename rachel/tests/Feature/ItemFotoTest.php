@@ -9,10 +9,25 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Tests\TestCase;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class ItemFotoTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::create([
+            'name' => 'Administrator',
+            'email' => 'admin@test.local',
+            'password' => Hash::make('Password123!'),
+        ]);
+
+        $this->actingAs($admin);
+    }
 
     // ==========================================
     // HELPER DATA TESTING

@@ -6,10 +6,25 @@ use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Category;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class ItemControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::create([
+            'name' => 'Administrator',
+            'email' => 'admin@test.local',
+            'password' => Hash::make('Password123!'),
+        ]);
+
+        $this->actingAs($admin);
+    }
 
     // Data barang untuk pengujian
     // Data barang untuk pengujian

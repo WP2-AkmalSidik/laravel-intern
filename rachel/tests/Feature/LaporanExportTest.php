@@ -11,10 +11,25 @@ use App\Exports\RingkasanSheet;
 use App\Exports\DataInventarisSheet;
 use App\Exports\RiwayatKerusakanSheet;
 use App\Models\Category;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class LaporanExportTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::create([
+            'name' => 'Administrator',
+            'email' => 'admin@test.local',
+            'password' => Hash::make('Password123!'),
+        ]);
+
+        $this->actingAs($admin);
+    }
 
     // ==========================================
     // HELPER DATA TESTING
