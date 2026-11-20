@@ -60,6 +60,13 @@ class AuthMiddlewareTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_guest_cannot_access_create_item_page_and_is_redirected_to_login(): void
+    {
+        $response = $this->get(route('items.create'));
+
+        $response->assertRedirect(route('login'));
+    }
+
     public function test_guest_dialihkan_ke_login_saat_mengakses_halaman_admin(): void
     {
         $item = $this->buatItem();
@@ -72,7 +79,6 @@ class AuthMiddlewareTest extends TestCase
         ]);
 
         $protectedRoutes = [
-            route('items.create'),
             route('items.edit', $item),
             route('items.rusak.index'),
             route('items.rusak.create', $item),

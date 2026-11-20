@@ -62,7 +62,7 @@ class ItemFotoTest extends TestCase
     // A. PENGUJIAN UPLOAD FOTO
     // ==========================================
 
-    public function test_foto_barang_bisa_diunggah_saat_create(): void
+    public function test_authenticated_user_can_upload_photo_when_creating_item(): void
     {
         /** @var FilesystemAdapter $disk */
         $disk = Storage::fake('public');
@@ -115,7 +115,7 @@ class ItemFotoTest extends TestCase
     // B. PENGUJIAN PENGGANTIAN FOTO
     // ==========================================
 
-    public function test_foto_lama_dihapus_ketika_diganti_foto_baru(): void
+    public function test_updating_item_photo_deletes_old_photo_from_storage(): void
     {
         /** @var FilesystemAdapter $disk */
         $disk = Storage::fake('public');

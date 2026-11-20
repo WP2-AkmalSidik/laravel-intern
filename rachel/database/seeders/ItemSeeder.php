@@ -10,15 +10,16 @@ class ItemSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ambil ID kategori dari tabel master
+        // Ambil ID seluruh kategori master
         $categories = Category::whereIn('nama', [
             'elektronik',
             'furniture',
+            'atk',
             'laptop',
         ])->pluck('id', 'nama');
 
-        // Pastikan semua kategori tersedia
-        foreach (['elektronik', 'furniture', 'laptop'] as $nama) {
+        // Pastikan seluruh kategori tersedia
+        foreach (['elektronik', 'furniture', 'atk', 'laptop'] as $nama) {
             if (!$categories->has($nama)) {
                 throw new \RuntimeException(
                     "Kategori {$nama} belum tersedia. Silakan buat kategori terlebih dahulu."
@@ -62,11 +63,42 @@ class ItemSeeder extends Seeder
                 'lokasi_ruangan' => 'Ruang Meeting',
                 'tanggal_masuk' => '2026-02-18',
             ],
+            [
+                'nama_barang' => 'Paket Alat Tulis Kantor',
+                'category_id' => $categories['atk'],
+                'jumlah_stok' => 20,
+                'lokasi_ruangan' => 'Ruang Administrasi',
+                'tanggal_masuk' => '2026-02-20',
+            ],
         ];
 
         foreach ($contohItem as $dataItem) {
-            $item = Item::create($dataItem);
 
+            // Identitas barang untuk mencegah duplikasi
+            $item = Item::firstOrCreate(
+                [
+                    'nama_barang' => $dataItem['nama_barang'],
+                    'category_id' => $dataItem['category_id'],
+                    'lokasi_ruangan' => $dataItem['lokasi_ruangan'],
+                ],
+                [
+                    'jumlah_stok' => $dataItem['jumlah_stok'],
+                    'tanggal_masuk' => $dataItem['tanggal_masuk'],
+                ]
+            );
+            // Perbaiki kode barang jika masih kosong
+            if (empty($item->kode_barang)) {
+                $item->update([
+                    'kode_barang' => 'AST' . str_pad(
+                        $item->id,
+                        4,
+                        '0',
+                        STR_PAD_LEFT
+                    ),
+                ]);
+            }
+
+            // Hitung ulang kondisi barang
             $item->hitungKondisi();
         }
     }
