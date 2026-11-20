@@ -14,7 +14,8 @@ class Item extends Model
         'jumlah_stok',
         'kondisi',
         'lokasi_ruangan',
-        'tanggal_masuk'
+        'tanggal_masuk',
+        'foto_barang',
     ];
 
     protected static function booted(): void

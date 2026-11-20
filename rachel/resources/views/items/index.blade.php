@@ -167,6 +167,7 @@
             <thead class="bg-gray-100 text-gray-600">
                 <tr>
                     <th class="px-4 py-3">No</th>
+                    <th class="px-4 py-3">Foto</th>
                     <th class="px-4 py-3">Kode Barang</th>
                     <th class="px-4 py-3">Nama Barang</th>
                     <th class="px-4 py-3">Kategori</th>
@@ -185,7 +186,25 @@
                         <td class="px-4 py-3">
                             {{ $items->firstItem() + $loop->index }}
                         </td>
-
+                        <td class="px-4 py-3">
+                            @if ($item->foto_barang)
+                                <img src="{{ asset('storage/' . $item->foto_barang) }}"
+                                    alt="Foto {{ $item->nama_barang }}"
+                                    class="w-10 h-10 object-cover rounded-lg border border-gray-200" loading="lazy">
+                            @else
+                                <div
+                                    class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3 16.5V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25v13.5A2.25 2.25 0 0118.75 21H5.25A2.25 2.25 0 013 18.75v-2.25z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3 16.5l5.25-5.25a2.25 2.25 0 013.182 0L15 14.81l1.5-1.5a2.25 2.25 0 013.182 0L21 14.63" />
+                                        <circle cx="15.75" cy="8.25" r="1.5" />
+                                    </svg>
+                                </div>
+                            @endif
+                        </td>
                         <td class="px-4 py-3">
                             {{ $item->kode_barang }}
                         </td>
@@ -250,7 +269,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="8" class="text-center py-8 text-gray-500">
+                        <td colspan="9" class="text-center py-8 text-gray-500">
                             Data barang tidak ditemukan.
                         </td>
                     </tr>

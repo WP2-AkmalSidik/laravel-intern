@@ -10,6 +10,7 @@ use App\Http\Requests\ItemRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Models\Category;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -78,47 +79,90 @@ class ItemController extends Controller
      * Store a newly created resource in storage.
      */
 
+
     public function store(ItemRequest $request): RedirectResponse
     {
         $validatedData = $request->validated();
 
-        $pesan = DB::transaction(function () use ($validatedData) {
+        // Ambil file foto secara terpisah dari data lainnya
+        $fotoBarang = $request->file('foto_barang');
 
-            // Cari barang dengan identitas yang sama
-            $item = Item::whereRaw('LOWER(TRIM(nama_barang)) = ?', [
-                strtolower(trim($validatedData['nama_barang']))
-            ])
-                ->where('category_id', $validatedData['category_id'])
-                ->whereRaw('LOWER(TRIM(lokasi_ruangan)) = ?', [
-                    strtolower(trim($validatedData['lokasi_ruangan']))
+        unset($validatedData['foto_barang']);
+
+        $newPhotoPath = null;
+        $oldPhotoPath = null;
+
+        try {
+            $pesan = DB::transaction(function () use ($validatedData, $fotoBarang, &$newPhotoPath, &$oldPhotoPath) {
+                // Cari barang dengan identitas yang sama
+                $item = Item::whereRaw('LOWER(TRIM(nama_barang)) = ?', [
+                    strtolower(trim($validatedData['nama_barang']))
                 ])
-                ->first();
+                    ->where('category_id', $validatedData['category_id'])
+                    ->whereRaw('LOWER(TRIM(lokasi_ruangan)) = ?', [
+                        strtolower(trim($validatedData['lokasi_ruangan']))
+                    ])
+                    ->first();
 
-            if ($item) {
+                if ($item) {
 
-                // Jika barang sudah ada, tambahkan stok
-                $item->increment('jumlah_stok', $validatedData['jumlah_stok']);
+                    // Jika barang sudah ada, tambahkan stok
+                    $item->increment('jumlah_stok', $validatedData['jumlah_stok']);
 
-                $pesan = 'Stok barang berhasil ditambahkan!';
+                    // Jika ada foto baru, ganti foto lama
+                    if ($fotoBarang) {
+                        $oldPhotoPath = $item->foto_barang;
 
-            } else {
+                        $newPhotoPath = $fotoBarang->store('items', 'public');
 
-                // Jika belum ada, buat data barang baru
-                $item = Item::create($validatedData);
+                        $item->update([
+                            'foto_barang' => $newPhotoPath,
+                        ]);
+                    }
 
-                $pesan = 'Aset baru berhasil dibuat dan disimpan!';
+                    $pesan = 'Stok barang berhasil ditambahkan!';
+
+                } else {
+
+                    // Simpan foto jika tersedia
+                    $newPhotoPath = $fotoBarang
+                        ? $fotoBarang->store('items', 'public')
+                        : null;
+
+                    // Buat data barang baru
+                    $item = Item::create(array_merge(
+                        $validatedData,
+                        ['foto_barang' => $newPhotoPath]
+                    ));
+
+                    $pesan = 'Aset baru berhasil dibuat dan disimpan!';
+                }
+
+                // Hitung ulang kondisi barang
+                $item->hitungKondisi();
+
+                return $pesan;
+            });
+        } catch (\Throwable $exception) {
+
+            // Hapus foto baru jika transaksi database gagal
+            if ($newPhotoPath) {
+                Storage::disk('public')->delete($newPhotoPath);
             }
 
-            // Hitung ulang kondisi barang
-            $item->hitungKondisi();
+            throw $exception;
+        }
 
-            return $pesan;
-        });
+        // Hapus foto lama setelah transaksi berhasil
+        if ($oldPhotoPath && $oldPhotoPath !== $newPhotoPath) {
+            Storage::disk('public')->delete($oldPhotoPath);
+        }
 
         return redirect()
             ->route('items.index')
             ->with('success', $pesan);
     }
+
 
 
     /**
@@ -149,10 +193,17 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(ItemRequest $request, Item $item): RedirectResponse
     {
         $validatedData = $request->validated();
 
+        // Ambil file foto secara terpisah
+        $fotoBarang = $request->file('foto_barang');
+
+        unset($validatedData['foto_barang']);
+
+        // Hitung total kerusakan aktif
         $totalRusakAktif = $item->itemRusaks()
             ->aktif()
             ->sum('jumlah_rusak');
@@ -165,26 +216,80 @@ class ItemController extends Controller
                 ->withInput();
         }
 
-        DB::transaction(function () use ($item, $validatedData) {
+        $newPhotoPath = null;
+        $oldPhotoPath = null;
 
-            $item->update($validatedData);
+        try {
+            DB::transaction(function () use ($item, $validatedData, $fotoBarang, &$newPhotoPath, &$oldPhotoPath) {
 
-            $item->hitungKondisi();
+                // Jika pengguna mengunggah foto baru
+                if ($fotoBarang) {
 
-        });
+                    $newPhotoPath = $fotoBarang->store('items', 'public');
+
+                    if (!$newPhotoPath) {
+                        throw new \RuntimeException(
+                            'Foto barang gagal disimpan.'
+                        );
+                    }
+
+                    // Simpan path foto lama untuk dihapus setelah transaksi
+                    $oldPhotoPath = $item->foto_barang;
+
+                    // Masukkan path foto baru ke data update
+                    $validatedData['foto_barang'] = $newPhotoPath;
+                }
+
+                // Perbarui data barang
+                $item->update($validatedData);
+
+                // Hitung ulang kondisi barang
+                $item->hitungKondisi();
+            });
+
+        } catch (\Throwable $exception) {
+
+            // Bersihkan foto baru jika transaksi gagal
+            if ($newPhotoPath) {
+                Storage::disk('public')->delete($newPhotoPath);
+            }
+
+            throw $exception;
+        }
+
+        // Hapus foto lama setelah transaksi berhasil
+        if ($oldPhotoPath && $oldPhotoPath !== $newPhotoPath) {
+            Storage::disk('public')->delete($oldPhotoPath);
+        }
 
         return redirect()
             ->route('items.index')
             ->with('success', "Data '{$item->nama_barang}' berhasil diperbarui!");
     }
 
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Item $item): RedirectResponse
     {
-        $item->delete();
-        return redirect()->route('items.index')->with('success', "'{$item->nama_barang}' berhasil dihapus!");
+        // Simpan informasi sebelum barang dihapus
+        $fotoPath = $item->foto_barang;
+        $namaBarang = $item->nama_barang;
+
+        // Hapus data barang melalui transaksi database
+        DB::transaction(function () use ($item) {
+            $item->delete();
+        });
+
+        // Hapus file foto setelah penghapusan database berhasil
+        if ($fotoPath) {
+            Storage::disk('public')->delete($fotoPath);
+        }
+
+        return redirect()
+            ->route('items.index')
+            ->with('success', "'{$namaBarang}' berhasil dihapus!");
     }
 
     public function apiSummary(): JsonResponse

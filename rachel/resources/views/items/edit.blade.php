@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="mb-6">
+    <div class="mb-6 text-center">
         <h2 class="text-2xl font-bold text-gray-800">
             Edit Barang
         </h2>
@@ -13,9 +13,9 @@
         </p>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6 max-w-3xl">
+    <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
 
-        <form action="{{ route('items.update', $item->id) }}" method="POST">
+        <form action="{{ route('items.update', $item->id) }}" method="POST" enctype="multipart/form-data">
 
             @csrf
             @method('PUT')
@@ -85,6 +85,41 @@
                     class="w-full border rounded-lg px-3 py-2">
 
                 @error('lokasi_ruangan')
+                    <p class="text-red-500 text-sm mt-1">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- Foto Barang --}}
+            <div class="mb-4">
+                <label class="block font-medium mb-2">
+                    Foto Barang
+                </label>
+
+                @if ($item->foto_barang)
+                    <div class="mb-3">
+                        <img src="{{ asset('storage/' . $item->foto_barang) }}" alt="Foto {{ $item->nama_barang }}"
+                            class="w-32 h-32 object-cover rounded-lg border">
+                        <p class="text-gray-500 text-sm mt-1">
+                            Foto saat ini
+                        </p>
+                    </div>
+                @else
+                    <p class="text-gray-500 text-sm mb-2">
+                        Belum ada foto barang.
+                    </p>
+                @endif
+
+                <input type="file" name="foto_barang" accept=".jpg,.jpeg,.png,.webp"
+                    class="w-full border rounded-lg px-3 py-2">
+
+                <p class="text-gray-500 text-sm mt-1">
+                    Kosongkan jika tidak ingin mengganti foto.
+                    Format JPG, JPEG, PNG, atau WEBP. Maksimal 2 MB.
+                </p>
+
+                @error('foto_barang')
                     <p class="text-red-500 text-sm mt-1">
                         {{ $message }}
                     </p>

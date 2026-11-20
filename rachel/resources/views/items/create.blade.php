@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="mb-6">
+    <div class="mb-6 text-center">
         <h2 class="text-2xl font-bold text-gray-800">
             Tambah Barang
         </h2>
@@ -13,9 +13,9 @@
         </p>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6 ">
+    <div class="bg-white rounded-lg shadow p-6 w-full max-w-3xl mx-auto">
 
-        <form action="{{ route('items.store') }}" method="POST">
+        <form action="{{ route('items.store') }}" method="POST" enctype="multipart/form-data">
 
             @csrf
 
@@ -84,6 +84,26 @@
                     placeholder="Contoh: Ruang IT" class="w-full border rounded-lg px-3 py-2">
 
                 @error('lokasi_ruangan')
+                    <p class="text-red-500 text-sm mt-1">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            {{-- Foto Barang --}}
+            <div class="mb-4">
+                <label class="block font-medium mb-2">
+                    Foto Barang
+                </label>
+
+                <input type="file" name="foto_barang" accept=".jpg,.jpeg,.png,.webp"
+                    class="w-full border rounded-lg px-3 py-2">
+
+                <p class="text-gray-500 text-sm mt-1">
+                    Format JPG, JPEG, PNG, atau WEBP. Maksimal 2 MB.
+                </p>
+
+                @error('foto_barang')
                     <p class="text-red-500 text-sm mt-1">
                         {{ $message }}
                     </p>
