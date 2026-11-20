@@ -285,7 +285,7 @@
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $item->kode_barang ?? '-' }}</td>
                         <td>{{ $item->nama_barang }}</td>
-                        <td>{{ $item->kategori }}</td>
+                        <td>{{ $item->category?->label_nama ?? '-' }}</td>
                         <td>{{ number_format($item->jumlah_stok) }}</td>
                         <td>{{ number_format($item->stok_baik) }}</td>
                         <td>{{ number_format($item->total_rusak_aktif ?? 0) }}</td>

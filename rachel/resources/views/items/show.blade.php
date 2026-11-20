@@ -55,7 +55,7 @@
             <p class="text-gray-500 text-sm">Stok Baik</p>
 
             <h3 class="text-3xl font-bold text-green-600 mt-2">
-                {{ $item->jumlah_stok - $item->jumlah_rusak_aktif }}
+                {{ $item->stok_baik }}
             </h3>
         </div>
 
@@ -99,7 +99,7 @@
             <div>
                 <p class="text-sm text-gray-500">Kategori</p>
                 <p class="font-semibold text-gray-800 mt-1">
-                    {{ ucfirst($item->kategori) }}
+                    {{ $item->category?->label_nama ?? '-' }}
                 </p>
             </div>
 

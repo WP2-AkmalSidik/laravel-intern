@@ -10,6 +10,7 @@ use Tests\TestCase;
 use App\Exports\RingkasanSheet;
 use App\Exports\DataInventarisSheet;
 use App\Exports\RiwayatKerusakanSheet;
+use App\Models\Category;
 
 class LaporanExportTest extends TestCase
 {
@@ -24,9 +25,11 @@ class LaporanExportTest extends TestCase
         string $tanggalMasuk,
         int $jumlahStok = 10
     ): Item {
+        $category = Category::where('nama', 'elektronik')->firstOrFail();
+
         return Item::create([
             'nama_barang' => $nama,
-            'kategori' => 'elektronik',
+            'category_id' => $category->id,
             'jumlah_stok' => $jumlahStok,
             'lokasi_ruangan' => 'Ruang Testing',
             'tanggal_masuk' => $tanggalMasuk,

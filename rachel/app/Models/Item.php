@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Item extends Model
 {
     protected $fillable = [
         'nama_barang',
-        'kategori',
+        'category_id',
         'jumlah_stok',
         'kondisi',
         'lokasi_ruangan',
@@ -28,6 +29,11 @@ class Item extends Model
 
             $item->saveQuietly();
         });
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function getPersentaseKondisiAttribute(): float
@@ -113,7 +119,9 @@ class Item extends Model
         return $query->where(function (Builder $q) use ($keyword) {
             $q->where('nama_barang', 'like', "%{$keyword}%")
                 ->orWhere('kode_barang', 'like', "%{$keyword}%")
-                ->orWhere('kategori', 'like', "%{$keyword}%");
+                ->orWhereHas('category', function (Builder $categoryQuery) use ($keyword) {
+                    $categoryQuery->where('nama', 'like', "%{$keyword}%");
+                });
         });
     }
 

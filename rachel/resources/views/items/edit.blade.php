@@ -42,19 +42,17 @@
                     Kategori
                 </label>
 
-                <select name="kategori" class="w-full border rounded-lg px-3 py-2">
+                <select name="category_id" class="w-full border rounded-lg px-3 py-2">
                     <option value="">Pilih Kategori</option>
 
-                    <option value="furniture" {{ old('kategori', $item->kategori) == 'furniture' ? 'selected' : '' }}>
-                        Furniture
-                    </option>
-
-                    <option value="elektronik" {{ old('kategori', $item->kategori) == 'elektronik' ? 'selected' : '' }}>
-                        Elektronik
-                    </option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}" @selected(old('category_id', $item->category_id) == $category->id)>
+                            {{ $category->label_nama }}
+                        </option>
+                    @endforeach
                 </select>
 
-                @error('kategori')
+                @error('category_id')
                     <p class="text-red-500 text-sm mt-1">
                         {{ $message }}
                     </p>

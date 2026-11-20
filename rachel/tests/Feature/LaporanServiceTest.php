@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Events\QueryExecuted;
 use Tests\TestCase;
+use App\Models\Category;
 
 class LaporanServiceTest extends TestCase
 {
@@ -23,9 +24,11 @@ class LaporanServiceTest extends TestCase
         string $tanggalMasuk,
         int $jumlahStok = 10
     ): Item {
+        $category = Category::where('nama', 'elektronik')->firstOrFail();
+
         return Item::create([
             'nama_barang' => $nama,
-            'kategori' => 'elektronik',
+            'category_id' => $category->id,
             'jumlah_stok' => $jumlahStok,
             'lokasi_ruangan' => 'Ruang Testing',
             'tanggal_masuk' => $tanggalMasuk,

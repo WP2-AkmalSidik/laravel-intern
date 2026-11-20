@@ -233,7 +233,7 @@
                             </td>
 
                             <td class="px-4 py-3">
-                                {{ $item->kategori }}
+                                {{ $item->category?->label_nama ?? '-' }}
                             </td>
 
                             <td class="px-4 py-3">

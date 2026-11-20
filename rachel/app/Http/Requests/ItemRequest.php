@@ -26,7 +26,7 @@ class ItemRequest extends FormRequest
     {
         $rules = [
             'nama_barang' => ['min:2', 'max:255', 'string', 'required'],
-            'kategori' => ['in:furniture,elektronik', 'required'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'jumlah_stok' => ['required', 'integer', 'min:1'],
             'lokasi_ruangan' => ['required', 'string', 'min:2', 'max:100'],
             'tanggal_masuk' => ['required', 'date'],
@@ -48,8 +48,9 @@ class ItemRequest extends FormRequest
             'nama_barang.required' => ':attribute tidak boleh kosong!',
             'nama_barang.min' => ':attribute minimal berisi :min karakter!',
             'nama_barang.max' => ':attribute maksimal berisi :max karakter!',
-            'kategori.required' => 'Pilih salah satu :attribute yang tersedia',
-            'kategori.in' => 'Pilihan :attribute tidak valid!',
+            'category_id.required' => 'Pilih salah satu :attribute yang tersedia!',
+            'category_id.integer' => 'Pilihan :attribute tidak valid!',
+            'category_id.exists' => 'Kategori yang dipilih tidak tersedia!',
             'jumlah_stok.required' => ':attribute tidak boleh kosong!',
             'jumlah_stok.integer' => ':attribute harus berupa angka!',
             'jumlah_stok.min' => ':attribute minimal berjumlah :min',
@@ -69,7 +70,7 @@ class ItemRequest extends FormRequest
     {
         return [
             'nama_barang' => 'Nama aset/barang',
-            'kategori' => 'Kategori barang',
+            'category_id' => 'Kategori barang',
             'jumlah_stok' => 'Jumlah aset/barang',
             'lokasi_ruangan' => 'Lokasi aset/barang berada',
             'tanggal_masuk' => 'Tanggal masuk aset/barang'

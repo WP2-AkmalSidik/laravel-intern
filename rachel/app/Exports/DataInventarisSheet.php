@@ -40,7 +40,7 @@ class DataInventarisSheet implements FromCollection, WithTitle, WithStyles, With
                     $index + 1,
                     $item->kode_barang ?? '-',
                     $item->nama_barang,
-                    $item->kategori,
+                    $item->category?->nama ?? '-',
                     $item->jumlah_stok ?? '0',
                     $item->stok_baik ?? '0',
                     $item->total_rusak_aktif ?? '0',

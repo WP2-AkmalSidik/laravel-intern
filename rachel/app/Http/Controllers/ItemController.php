@@ -9,54 +9,75 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\ItemRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Models\Category;
 
 class ItemController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
     public function index(Request $request): View
     {
         $kondisiFilter = $request->query('kondisi');
         $searchKeyword = $request->query('search');
-        $kategoriFilter = $request->query('kategori');
+        $categoryIdFilter = $request->query('category_id');
 
-        $itemsQuery = Item::query();
+        $itemsQuery = Item::query()
+            ->with(['category', 'itemRusaks'])
+            ->withSum([
+                'itemRusaks as total_rusak_aktif' => function ($query) {
+                    $query->aktif();
+                }
+            ], 'jumlah_rusak');
 
         if (!empty($kondisiFilter)) {
             $itemsQuery->where('kondisi', $kondisiFilter);
         }
+
         if (!empty($searchKeyword)) {
             $itemsQuery->search($searchKeyword);
         }
-        if (!empty($kategoriFilter)) {
-            $itemsQuery->where('kategori', $kategoriFilter);
+
+        if (!empty($categoryIdFilter)) {
+            $itemsQuery->where('category_id', $categoryIdFilter);
         }
-        $items = $itemsQuery->latest()->paginate(10)->withQueryString();
 
-        //statistik ringkas untuk dashboard
+        $items = $itemsQuery->latest()
+            ->paginate(10)
+            ->withQueryString();
 
+        // Statistik ringkas untuk dashboard
         $stats = [
             'total' => Item::count(),
             'rusak' => Item::where('kondisi', 'rusak_berat')->count(),
             'baik' => Item::where('kondisi', 'baik')->count(),
         ];
-
-
-        return view('items.index', compact('kondisiFilter', 'searchKeyword', 'kategoriFilter', 'items', 'stats'));
+        $categories = Category::orderBy('nama')->get();
+        return view('items.index', compact(
+            'kondisiFilter',
+            'searchKeyword',
+            'categoryIdFilter',
+            'categories',
+            'items',
+            'stats'
+        ));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        return view('items.create');
+        $categories = Category::orderBy('nama')->get();
+
+        return view('items.create', compact('categories'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(ItemRequest $request): RedirectResponse
     {
         $validatedData = $request->validated();
@@ -67,7 +88,7 @@ class ItemController extends Controller
             $item = Item::whereRaw('LOWER(TRIM(nama_barang)) = ?', [
                 strtolower(trim($validatedData['nama_barang']))
             ])
-                ->where('kategori', $validatedData['kategori'])
+                ->where('category_id', $validatedData['category_id'])
                 ->whereRaw('LOWER(TRIM(lokasi_ruangan)) = ?', [
                     strtolower(trim($validatedData['lokasi_ruangan']))
                 ])
@@ -99,11 +120,14 @@ class ItemController extends Controller
             ->with('success', $pesan);
     }
 
+
     /**
      * Display the specified resource.
      */
     public function show(Item $item): View
     {
+        $item->load('category');
+
         $item->loadSum([
             'itemRusaks as total_rusak_aktif' => function ($query) {
                 $query->aktif();
@@ -118,9 +142,10 @@ class ItemController extends Controller
      */
     public function edit(Item $item): View
     {
-        return view('items.edit', compact('item'));
-    }
+        $categories = Category::orderBy('nama')->get();
 
+        return view('items.edit', compact('item', 'categories'));
+    }
     /**
      * Update the specified resource in storage.
      */

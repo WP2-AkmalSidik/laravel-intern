@@ -113,18 +113,14 @@
                 @endif
             </div>
 
-            <select name="kategori" class="border rounded-lg px-3 py-2">
-
+            <select name="category_id" id="category_id">
                 <option value="">Semua Kategori</option>
 
-                <option value="furniture" {{ $kategoriFilter == 'furniture' ? 'selected' : '' }}>
-                    Furniture
-                </option>
-
-                <option value="elektronik" {{ $kategoriFilter == 'elektronik' ? 'selected' : '' }}>
-                    Elektronik
-                </option>
-
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" @selected((string) $categoryIdFilter === (string) $category->id)>
+                        {{ $category->label_nama }}
+                    </option>
+                @endforeach
             </select>
 
             <select name="kondisi" class="border rounded-lg px-3 py-2">
@@ -199,7 +195,7 @@
                         </td>
 
                         <td class="px-4 py-3">
-                            {{ ucfirst($item->kategori) }}
+                            {{ $item->category?->label_nama ?? '-' }}
                         </td>
 
                         <td class="px-4 py-3 text-center">

@@ -10,7 +10,7 @@ class LaporanService
     //
     public function getInventarisData(?string $from = null, ?string $to = null)
     {
-        $query = Item::query();
+        $query = Item::query()->with('category');
         if ($from) {
             $query->whereDate('tanggal_masuk', '>=', $from);
         }

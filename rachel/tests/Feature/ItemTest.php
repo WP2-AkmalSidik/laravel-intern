@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Item;
+use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,14 +11,24 @@ class ItemTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_barang_bisa_ditambahkan_dengan_kode_otomatis(): void
+    private function buatItem(array $override = []): Item
     {
-        $item = Item::create([
-            'nama_barang' => 'Laptop Lenovo ThinkPad E14',
-            'kategori' => 'Elektronik',
-            'jumlah_stok' => 5,
+        $category = Category::where('nama', 'elektronik')->firstOrFail();
+
+        return Item::create(array_merge([
+            'nama_barang' => 'Barang Testing',
+            'category_id' => $category->id,
+            'jumlah_stok' => 10,
             'lokasi_ruangan' => 'Ruang IT',
             'tanggal_masuk' => '2026-01-15',
+        ], $override));
+    }
+
+    public function test_barang_bisa_ditambahkan_dengan_kode_otomatis(): void
+    {
+        $item = $this->buatItem([
+            'nama_barang' => 'Laptop Lenovo ThinkPad E14',
+            'jumlah_stok' => 5,
         ]);
 
         $this->assertDatabaseHas('items', [
@@ -31,14 +42,11 @@ class ItemTest extends TestCase
             ),
         ]);
     }
+
     public function test_kondisi_barang_dihitung_berdasarkan_persentase_stok_baik(): void
     {
-        $item = Item::create([
+        $item = $this->buatItem([
             'nama_barang' => 'Laptop Testing',
-            'kategori' => 'Elektronik',
-            'jumlah_stok' => 10,
-            'lokasi_ruangan' => 'Ruang IT',
-            'tanggal_masuk' => '2026-01-15',
         ]);
 
         // Catat 3 unit rusak, berarti stok baik 70%
@@ -53,14 +61,11 @@ class ItemTest extends TestCase
 
         $this->assertEquals('cukup_baik', $item->fresh()->kondisi);
     }
+
     public function test_kondisi_rusak_berat(): void
     {
-        $item = Item::create([
-            'nama_barang' => 'Barang Testing',
-            'kategori' => 'Elektronik',
-            'jumlah_stok' => 10,
-            'lokasi_ruangan' => 'Ruang IT',
-            'tanggal_masuk' => '2026-01-15',
+        $item = $this->buatItem([
+            'nama_barang' => 'Barang Rusak Berat',
         ]);
 
         $item->itemRusaks()->create([
@@ -77,12 +82,8 @@ class ItemTest extends TestCase
 
     public function test_kondisi_kurang_baik(): void
     {
-        $item = Item::create([
-            'nama_barang' => 'Barang Testing',
-            'kategori' => 'Elektronik',
-            'jumlah_stok' => 10,
-            'lokasi_ruangan' => 'Ruang IT',
-            'tanggal_masuk' => '2026-01-15',
+        $item = $this->buatItem([
+            'nama_barang' => 'Barang Kurang Baik',
         ]);
 
         $item->itemRusaks()->create([
@@ -99,12 +100,8 @@ class ItemTest extends TestCase
 
     public function test_kondisi_baik(): void
     {
-        $item = Item::create([
-            'nama_barang' => 'Barang Testing',
-            'kategori' => 'Elektronik',
-            'jumlah_stok' => 10,
-            'lokasi_ruangan' => 'Ruang IT',
-            'tanggal_masuk' => '2026-01-15',
+        $item = $this->buatItem([
+            'nama_barang' => 'Barang Baik',
         ]);
 
         $item->itemRusaks()->create([
