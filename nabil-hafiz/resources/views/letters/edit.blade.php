@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Edit Surat')
@@ -12,7 +11,9 @@
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <form action="{{ route('letters.update', $letter) }}" method="POST">
+        <form action="{{ route('letters.update', $letter) }}"
+        method="POST"
+        enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -59,6 +60,25 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-medium mb-1">Departemen</label>
+
+                    <select name="department_id" class="w-full border rounded-lg px-3 py-2">
+                        <option value="">Pilih Departemen</option>
+
+                        @foreach ($departments as $department)
+                            <option value="{{ $department->id }}"
+                                {{ old('department_id', $letter->department_id) == $department->id ? 'selected' : '' }}>
+                                {{ $department->nama_departemen }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('department_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label class="block text-sm font-medium mb-1">Jenis Surat</label>
                     <select name="jenis_surat" class="w-full border rounded-lg px-3 py-2">
                         <option value="masuk" {{ old('jenis_surat', $letter->jenis_surat) == 'masuk' ? 'selected' : '' }}>Surat Masuk</option>
@@ -87,6 +107,32 @@
                         value="{{ old('tanggal_surat', $letter->tanggal_surat->format('Y-m-d')) }}"
                         class="w-full border rounded-lg px-3 py-2">
                     @error('tanggal_surat')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">File Surat (PDF)</label>
+
+                    @if ($letter->file_surat)
+                        <div class="mb-2">
+                            <a href="{{ asset('storage/' . $letter->file_surat) }}"
+                                target="_blank"
+                                class="text-blue-600 hover:underline text-sm">
+                                Lihat PDF saat ini
+                            </a>
+                        </div>
+                    @endif
+
+                    <input type="file"
+                        name="file_surat"
+                        accept=".pdf,application/pdf"
+                        class="w-full border rounded-lg px-3 py-2">
+
+                    <p class="text-gray-500 text-xs mt-1">
+                        Kosongkan jika tidak ingin mengganti file PDF.
+                    </p>
+
+                    @error('file_surat')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>

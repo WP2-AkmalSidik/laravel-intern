@@ -41,6 +41,13 @@
             </div>
 
             <div>
+                <p class="text-sm text-gray-500">Departemen</p>
+                <p class="font-semibold text-gray-800">
+                    {{ $letter->department?->nama_departemen ?? 'Belum ditentukan' }}
+                </p>
+            </div>
+
+            <div>
                 <p class="text-sm text-gray-500">Jenis Surat</p>
                 <p class="font-semibold text-gray-800">{{ $letter->jenis_surat_label }}</p>
             </div>
@@ -56,7 +63,23 @@
                     {{ $letter->tanggal_surat->format('d-m-Y') }}
                 </p>
             </div>
+        </div>
 
+        <div class="border-t mt-6 pt-5">
+            <p class="text-sm text-gray-500 mb-2">Dokumen Asli</p>
+
+            @if ($letter->file_surat)
+                <a href="{{ asset('storage/' . $letter->file_surat) }}"
+                    target="_blank"
+                    class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    Lihat Dokumen Asli (PDF)
+                </a>
+            @else
+                <p class="text-gray-500 text-sm">
+                    Belum ada dokumen PDF yang dilampirkan.
+                </p>
+            @endif
         </div>
 
         <div class="border-t mt-6 pt-5 flex justify-end">

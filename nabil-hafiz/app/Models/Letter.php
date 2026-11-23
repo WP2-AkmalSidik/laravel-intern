@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Letter extends Model
 {
@@ -18,6 +19,8 @@ class Letter extends Model
         'jenis_surat',
         'status_disposisi',
         'tanggal_surat',
+        'department_id',
+        'file_surat',
     ];
 
     protected function casts(): array
@@ -73,5 +76,10 @@ class Letter extends Model
             'keluar' => 'Surat Keluar',
             default => 'Jenis surat tidak diketahui',
         };
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 }
