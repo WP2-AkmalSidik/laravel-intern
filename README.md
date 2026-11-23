@@ -58,6 +58,7 @@ Detail instruksi pengerjaan tugas langkah demi langkah (*step-by-step*), studi k
 
 - 👉 **[TUGAS_MAGANG.md](./TUGAS_MAGANG.md)** — **Fase 1:** Fondasi MVC, CRUD, Eloquent ORM, Validasi, Request & Response
 - 👉 **[TUGAS_FASE_2.md](./TUGAS_FASE_2.md)** — **Fase 2:** Relasi Database (Eloquent), Upload File & Media, Middleware Protection, & Feature Tests
+- 👉 **[TUGAS_FASE_3.md](./TUGAS_FASE_3.md)** — **Fase 3:** Role-Based Access Control (RBAC), Relasi Many-to-Many, Database Transactions, & Service Layer
 
 ---
 
