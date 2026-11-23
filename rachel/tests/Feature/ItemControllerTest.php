@@ -5,17 +5,43 @@ namespace Tests\Feature;
 use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Category;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class ItemControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = User::create([
+            'name' => 'Administrator',
+            'email' => 'admin@test.local',
+            'password' => Hash::make('Password123!'),
+        ]);
+
+        $this->actingAs($admin);
+    }
+
+    // Data barang untuk pengujian
     // Data barang untuk pengujian
     private function dataBarang(array $override = []): array
     {
+        $categoryId = $override['category_id']
+            ?? Category::where('nama', 'elektronik')->value('id');
+
+        if (!$categoryId) {
+            throw new \RuntimeException(
+                'Kategori Elektronik belum tersedia di database testing.'
+            );
+        }
+
         return array_merge([
             'nama_barang' => 'Laptop Testing',
-            'kategori' => 'elektronik',
+            'category_id' => $categoryId,
             'jumlah_stok' => 5,
             'lokasi_ruangan' => 'Ruang IT',
             'tanggal_masuk' => '2026-01-15',
@@ -231,24 +257,28 @@ class ItemControllerTest extends TestCase
     }
     public function test_filter_barang_berdasarkan_kategori(): void
     {
-        $elektronik = Item::create($this->dataBarang([
-            'kategori' => 'elektronik',
+        $elektronik = Category::where('nama', 'elektronik')->firstOrFail();
+        $furniture = Category::where('nama', 'furniture')->firstOrFail();
+
+        $item = Item::create($this->dataBarang([
+            'nama_barang' => 'Laptop Testing',
+            'category_id' => $elektronik->id,
         ]));
 
         Item::create($this->dataBarang([
             'nama_barang' => 'Meja Testing',
-            'kategori' => 'furniture',
+            'category_id' => $furniture->id,
         ]));
 
         $response = $this->get(route('items.index', [
-            'kategori' => 'elektronik',
+            'category_id' => $elektronik->id,
         ]));
 
         $response->assertOk();
 
-        $response->assertViewHas('items', function ($items) use ($elektronik) {
+        $response->assertViewHas('items', function ($items) use ($item) {
             return $items->total() === 1
-                && $items->first()->id === $elektronik->id;
+                && $items->first()->id === $item->id;
         });
     }
     public function test_pencarian_barang_berdasarkan_nama(): void
@@ -293,17 +323,21 @@ class ItemControllerTest extends TestCase
     }
     public function test_pencarian_barang_berdasarkan_kategori(): void
     {
+        $elektronik = Category::where('nama', 'elektronik')->firstOrFail();
+        $furniture = Category::where('nama', 'furniture')->firstOrFail();
+
         $item = Item::create($this->dataBarang([
-            'kategori' => 'elektronik',
+            'nama_barang' => 'Barang Testing',
+            'category_id' => $elektronik->id,
         ]));
 
         Item::create($this->dataBarang([
             'nama_barang' => 'Meja Kantor',
-            'kategori' => 'furniture',
+            'category_id' => $furniture->id,
         ]));
 
         $response = $this->get(route('items.index', [
-            'search' => 'elektronik',
+            'search' => 'Elektronik',
         ]));
 
         $response->assertOk();
@@ -315,27 +349,30 @@ class ItemControllerTest extends TestCase
     }
     public function test_filter_kondisi_kategori_dan_pencarian_bisa_digabung(): void
     {
+        $elektronik = Category::where('nama', 'elektronik')->firstOrFail();
+        $furniture = Category::where('nama', 'furniture')->firstOrFail();
+
         $item = Item::create($this->dataBarang([
             'nama_barang' => 'Laptop Lenovo',
-            'kategori' => 'elektronik',
+            'category_id' => $elektronik->id,
             'kondisi' => 'baik',
         ]));
 
         Item::create($this->dataBarang([
             'nama_barang' => 'Laptop Asus',
-            'kategori' => 'elektronik',
+            'category_id' => $elektronik->id,
             'kondisi' => 'rusak_berat',
         ]));
 
         Item::create($this->dataBarang([
             'nama_barang' => 'Meja Lenovo',
-            'kategori' => 'furniture',
+            'category_id' => $furniture->id,
             'kondisi' => 'baik',
         ]));
 
         $response = $this->get(route('items.index', [
             'kondisi' => 'baik',
-            'kategori' => 'elektronik',
+            'category_id' => $elektronik->id,
             'search' => 'Lenovo',
         ]));
 
@@ -348,24 +385,26 @@ class ItemControllerTest extends TestCase
     }
     public function test_pagination_mempertahankan_parameter_filter(): void
     {
+        $elektronik = Category::where('nama', 'elektronik')->firstOrFail();
+
         // Buat 11 barang agar menghasilkan halaman kedua
         for ($i = 1; $i <= 11; $i++) {
             Item::create($this->dataBarang([
                 'nama_barang' => "Laptop Testing {$i}",
-                'kategori' => 'elektronik',
+                'category_id' => $elektronik->id,
                 'kondisi' => 'baik',
             ]));
         }
 
         $response = $this->get(route('items.index', [
             'kondisi' => 'baik',
-            'kategori' => 'elektronik',
+            'category_id' => $elektronik->id,
             'search' => 'Laptop',
         ]));
 
         $response->assertOk();
 
-        $response->assertViewHas('items', function ($items) {
+        $response->assertViewHas('items', function ($items) use ($elektronik) {
             $query = [];
 
             parse_str(
@@ -375,7 +414,7 @@ class ItemControllerTest extends TestCase
 
             return $items->total() === 11
                 && ($query['kondisi'] ?? null) === 'baik'
-                && ($query['kategori'] ?? null) === 'elektronik'
+                && ($query['category_id'] ?? null) == $elektronik->id
                 && ($query['search'] ?? null) === 'Laptop';
         });
     }
@@ -390,9 +429,11 @@ class ItemControllerTest extends TestCase
             'kondisi' => 'rusak_berat',
         ]));
 
+        $furniture = Category::where('nama', 'furniture')->firstOrFail();
+
         Item::create($this->dataBarang([
             'nama_barang' => 'Meja Kantor',
-            'kategori' => 'furniture',
+            'category_id' => $furniture->id,
             'kondisi' => 'cukup_baik',
         ]));
 

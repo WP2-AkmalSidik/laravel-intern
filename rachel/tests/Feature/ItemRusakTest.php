@@ -3,22 +3,45 @@
 namespace Tests\Feature;
 
 use App\Models\Item;
+use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class ItemRusakTest extends TestCase
 {
     use RefreshDatabase;
-    public function test_kerusakan_barang_bisa_dicatat(): void
+
+    protected function setUp(): void
     {
-        $item = Item::create([
+        parent::setUp();
+
+        $admin = User::create([
+            'name' => 'Administrator',
+            'email' => 'admin@test.local',
+            'password' => Hash::make('Password123!'),
+        ]);
+
+        $this->actingAs($admin);
+    }
+
+    private function buatItem(array $override = []): Item
+    {
+        $category = Category::where('nama', 'elektronik')->firstOrFail();
+
+        return Item::create(array_merge([
             'nama_barang' => 'Laptop Testing',
-            'kategori' => 'Elektronik',
+            'category_id' => $category->id,
             'jumlah_stok' => 10,
             'lokasi_ruangan' => 'Ruang IT',
             'tanggal_masuk' => '2026-01-15',
-        ]);
+        ], $override));
+    }
+
+    public function test_kerusakan_barang_bisa_dicatat(): void
+    {
+        $item = $this->buatItem();
 
         $itemRusak = $item->itemRusaks()->create([
             'jumlah_rusak' => 2,
@@ -34,14 +57,11 @@ class ItemRusakTest extends TestCase
             'status' => 'perbaikan',
         ]);
     }
+
     public function test_jumlah_kerusakan_melebihi_stok_akan_ditolak(): void
     {
-        $item = Item::create([
-            'nama_barang' => 'Laptop Testing',
-            'kategori' => 'Elektronik',
+        $item = $this->buatItem([
             'jumlah_stok' => 5,
-            'lokasi_ruangan' => 'Ruang IT',
-            'tanggal_masuk' => '2026-01-15',
         ]);
 
         // Catat kerusakan aktif sebanyak 2 unit
@@ -73,14 +93,11 @@ class ItemRusakTest extends TestCase
         // Pastikan tidak ada catatan kerusakan baru yang tersimpan
         $this->assertDatabaseCount('item_rusaks', 1);
     }
+
     public function test_status_kerusakan_selesai_bisa_diaktifkan_kembali(): void
     {
-        $item = Item::create([
-            'nama_barang' => 'Laptop Testing',
-            'kategori' => 'Elektronik',
+        $item = $this->buatItem([
             'jumlah_stok' => 5,
-            'lokasi_ruangan' => 'Ruang IT',
-            'tanggal_masuk' => '2026-01-15',
         ]);
 
         // Buat catatan kerusakan yang sudah selesai diperbaiki
@@ -126,14 +143,11 @@ class ItemRusakTest extends TestCase
             $item->fresh()->kondisi
         );
     }
+
     public function test_status_kerusakan_ditolak_jika_melebihi_stok(): void
     {
-        $item = Item::create([
-            'nama_barang' => 'Laptop Testing',
-            'kategori' => 'Elektronik',
+        $item = $this->buatItem([
             'jumlah_stok' => 5,
-            'lokasi_ruangan' => 'Ruang IT',
-            'tanggal_masuk' => '2026-01-15',
         ]);
 
         // Kerusakan aktif sebanyak 3 unit

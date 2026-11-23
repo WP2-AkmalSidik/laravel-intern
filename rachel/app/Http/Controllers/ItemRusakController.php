@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\ItemRusak;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 class ItemRusakController extends Controller
@@ -54,6 +55,12 @@ class ItemRusakController extends Controller
 
     public function create(Item $item)
     {
+        $item->loadSum([
+            'itemRusaks as total_rusak_aktif' => function ($query) {
+                $query->aktif();
+            }
+        ], 'jumlah_rusak');
+
         return view('items.rusak.create', compact('item'));
     }
     public function store(ItemRusakRequest $request, Item $item)
@@ -61,7 +68,7 @@ class ItemRusakController extends Controller
         $validated = $request->validated();
 
         $totalRusak = $item->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+            ->aktif()
             ->sum('jumlah_rusak');
 
         $stokTersedia = $item->jumlah_stok - $totalRusak;
@@ -74,9 +81,13 @@ class ItemRusakController extends Controller
                 ->withInput();
         }
 
-        $item->itemRusaks()->create($validated);
+        DB::transaction(function () use ($item, $validated) {
 
-        $item->hitungKondisi();
+            $item->itemRusaks()->create($validated);
+
+            $item->hitungKondisi();
+
+        });
 
         return redirect()
             ->route('items.index')
@@ -101,10 +112,9 @@ class ItemRusakController extends Controller
 
             // Hitung kerusakan aktif selain catatan yang sedang diedit
             $jumlahRusakLain = $item->itemRusaks()
-                ->whereIn('status', ['perbaikan', 'dibiarkan'])
+                ->aktif()
                 ->where('id', '!=', $itemRusak->id)
                 ->sum('jumlah_rusak');
-
             // Periksa apakah stok mencukupi
             if ($jumlahRusakLain + $validated['jumlah_rusak'] > $item->jumlah_stok) {
                 return back()
@@ -115,9 +125,13 @@ class ItemRusakController extends Controller
             }
         }
 
-        $itemRusak->update($validated);
+        DB::transaction(function () use ($item, $itemRusak, $validated) {
 
-        $item->hitungKondisi();
+            $itemRusak->update($validated);
+
+            $item->hitungKondisi();
+
+        });
 
         return redirect()
             ->route('items.rusak.index')

@@ -30,8 +30,8 @@ class ItemRusak extends Model
     public function getLabelStatusAttribute(): string
     {
         return match ($this->status) {
-            'perbaikan' => 'Sedang Diperbaiki',
-            'dibiarkan' => 'Tidak Diperbaiki',
+            'perbaikan' => 'Dalam Perbaikan',
+            'dibiarkan' => 'Belum Diperbaiki',
             'selesai_diperbaiki' => 'Selesai Diperbaiki',
             default => 'Tidak Diketahui',
         };
@@ -61,5 +61,12 @@ class ItemRusak extends Model
     public function scopeSelesaiDiperbaiki(Builder $query): Builder
     {
         return $query->where('status', 'selesai_diperbaiki');
+    }
+    public function scopeAktif(Builder $query): Builder
+    {
+        return $query->whereIn('status', [
+            'perbaikan',
+            'dibiarkan',
+        ]);
     }
 }

@@ -14,10 +14,11 @@
                 Kelola seluruh data aset dan barang.
             </p>
         </div>
-
-        <a href="{{ route('items.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            + Tambah Barang
-        </a>
+        @auth
+            <a href="{{ route('items.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                + Tambah Barang
+            </a>
+        @endauth
     </div>
 
     {{-- Statistik --}}
@@ -113,18 +114,14 @@
                 @endif
             </div>
 
-            <select name="kategori" class="border rounded-lg px-3 py-2">
-
+            <select name="category_id" id="category_id">
                 <option value="">Semua Kategori</option>
 
-                <option value="furniture" {{ $kategoriFilter == 'furniture' ? 'selected' : '' }}>
-                    Furniture
-                </option>
-
-                <option value="elektronik" {{ $kategoriFilter == 'elektronik' ? 'selected' : '' }}>
-                    Elektronik
-                </option>
-
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" @selected((string) $categoryIdFilter === (string) $category->id)>
+                        {{ $category->label_nama }}
+                    </option>
+                @endforeach
             </select>
 
             <select name="kondisi" class="border rounded-lg px-3 py-2">
@@ -171,6 +168,7 @@
             <thead class="bg-gray-100 text-gray-600">
                 <tr>
                     <th class="px-4 py-3">No</th>
+                    <th class="px-4 py-3">Foto</th>
                     <th class="px-4 py-3">Kode Barang</th>
                     <th class="px-4 py-3">Nama Barang</th>
                     <th class="px-4 py-3">Kategori</th>
@@ -189,7 +187,25 @@
                         <td class="px-4 py-3">
                             {{ $items->firstItem() + $loop->index }}
                         </td>
-
+                        <td class="px-4 py-3">
+                            @if ($item->foto_barang)
+                                <img src="{{ asset('storage/' . $item->foto_barang) }}"
+                                    alt="Foto {{ $item->nama_barang }}"
+                                    class="w-10 h-10 object-cover rounded-lg border border-gray-200" loading="lazy">
+                            @else
+                                <div
+                                    class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3 16.5V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25v13.5A2.25 2.25 0 0118.75 21H5.25A2.25 2.25 0 013 18.75v-2.25z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3 16.5l5.25-5.25a2.25 2.25 0 013.182 0L15 14.81l1.5-1.5a2.25 2.25 0 013.182 0L21 14.63" />
+                                        <circle cx="15.75" cy="8.25" r="1.5" />
+                                    </svg>
+                                </div>
+                            @endif
+                        </td>
                         <td class="px-4 py-3">
                             {{ $item->kode_barang }}
                         </td>
@@ -199,7 +215,7 @@
                         </td>
 
                         <td class="px-4 py-3">
-                            {{ ucfirst($item->kategori) }}
+                            {{ $item->category?->label_nama ?? '-' }}
                         </td>
 
                         <td class="px-4 py-3 text-center">
@@ -220,30 +236,33 @@
                         <td class="px-4 py-3">
                             <div class="flex flex-wrap items-center gap-2">
 
-                                {{-- Lihat --}}
+                                {{-- Lihat: Publik dan Admin --}}
                                 <a href="{{ route('items.show', $item->id) }}"
                                     class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition">
                                     Lihat
                                 </a>
 
-                                {{-- Edit --}}
-                                <a href="{{ route('items.edit', $item->id) }}"
-                                    class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-medium hover:bg-amber-100 transition">
-                                    Edit
-                                </a>
+                                {{-- Khusus Admin --}}
+                                @auth
+                                    {{-- Edit --}}
+                                    <a href="{{ route('items.edit', $item->id) }}"
+                                        class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-medium hover:bg-amber-100 transition">
+                                        Edit
+                                    </a>
 
-                                {{-- Catat Rusak --}}
-                                <a href="{{ route('items.rusak.create', $item->id) }}"
-                                    class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 text-xs font-medium hover:bg-orange-100 transition">
-                                    Catat Rusak
-                                </a>
+                                    {{-- Catat Rusak --}}
+                                    <a href="{{ route('items.rusak.create', $item->id) }}"
+                                        class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 text-xs font-medium hover:bg-orange-100 transition">
+                                        Catat Rusak
+                                    </a>
 
-                                {{-- Hapus --}}
-                                <button type="button"
-                                    onclick="bukaModalHapus('{{ route('items.destroy', $item->id) }}', @js($item->nama_barang))"
-                                    class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition">
-                                    Hapus
-                                </button>
+                                    {{-- Hapus --}}
+                                    <button type="button"
+                                        onclick="bukaModalHapus('{{ route('items.destroy', $item->id) }}', @js($item->nama_barang))"
+                                        class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition">
+                                        Hapus
+                                    </button>
+                                @endauth
 
                             </div>
                         </td>
@@ -254,7 +273,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="8" class="text-center py-8 text-gray-500">
+                        <td colspan="9" class="text-center py-8 text-gray-500">
                             Data barang tidak ditemukan.
                         </td>
                     </tr>

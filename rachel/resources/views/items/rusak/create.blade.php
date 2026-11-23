@@ -136,7 +136,7 @@
                     <option value="">Pilih Status</option>
 
                     <option value="perbaikan" {{ old('status') == 'perbaikan' ? 'selected' : '' }}>
-                        Sedang Diperbaiki
+                        Dalam Perbaikan
                     </option>
 
                     <option value="dibiarkan" {{ old('status') == 'dibiarkan' ? 'selected' : '' }}>

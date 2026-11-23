@@ -4,16 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Item extends Model
 {
     protected $fillable = [
         'nama_barang',
-        'kategori',
+        'category_id',
         'jumlah_stok',
         'kondisi',
         'lokasi_ruangan',
-        'tanggal_masuk'
+        'tanggal_masuk',
+        'foto_barang',
     ];
 
     protected static function booted(): void
@@ -26,23 +28,34 @@ class Item extends Model
                 STR_PAD_LEFT
             );
 
-            $item->save();
+            $item->saveQuietly();
         });
     }
 
-    public function getPersentaseKondisiAttribute()
+    public function category(): BelongsTo
     {
-        $totalStok = $this->jumlah_stok;
+        return $this->belongsTo(Category::class);
+    }
+
+    public function getPersentaseKondisiAttribute(): float
+    {
+        $totalStok = (int) $this->jumlah_stok;
 
         if ($totalStok <= 0) {
             return 0;
         }
 
-        $jumlahRusak = $this->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
-            ->sum('jumlah_rusak');
+        return ($this->stok_baik / $totalStok) * 100;
+    }
 
-        return (($totalStok - $jumlahRusak) / $totalStok) * 100;
+    public static function tentukanKondisi(float $persentase): string
+    {
+        return match (true) {
+            $persentase <= 40 => 'rusak_berat',
+            $persentase <= 60 => 'kurang_baik',
+            $persentase <= 80 => 'cukup_baik',
+            default => 'baik',
+        };
     }
 
     public function hitungKondisi(): void
@@ -57,17 +70,12 @@ class Item extends Model
         }
 
         $jumlahRusak = $this->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+            ->aktif()
             ->sum('jumlah_rusak');
 
         $persentase = (($totalStok - $jumlahRusak) / $totalStok) * 100;
 
-        $this->kondisi = match (true) {
-            $persentase <= 40 => 'rusak_berat',
-            $persentase <= 60 => 'kurang_baik',
-            $persentase <= 80 => 'cukup_baik',
-            default => 'baik',
-        };
+        $this->kondisi = self::tentukanKondisi($persentase);
 
         $this->save();
     }
@@ -95,15 +103,15 @@ class Item extends Model
     }
 
     //scope
-    protected function scopeBaik(Builder $query): Builder
+    public function scopeBaik(Builder $query): Builder
     {
         return $query->where('kondisi', 'baik');
     }
-    protected function scopeRusakBerat(Builder $query): Builder
+    public function scopeRusakBerat(Builder $query): Builder
     {
         return $query->where('kondisi', 'rusak_berat');
     }
-    protected function scopeSearch(Builder $query, ?string $keyword): Builder
+    public function scopeSearch(Builder $query, ?string $keyword): Builder
     {
         if (empty($keyword)) {
             return $query;
@@ -112,7 +120,9 @@ class Item extends Model
         return $query->where(function (Builder $q) use ($keyword) {
             $q->where('nama_barang', 'like', "%{$keyword}%")
                 ->orWhere('kode_barang', 'like', "%{$keyword}%")
-                ->orWhere('kategori', 'like', "%{$keyword}%");
+                ->orWhereHas('category', function (Builder $categoryQuery) use ($keyword) {
+                    $categoryQuery->where('nama', 'like', "%{$keyword}%");
+                });
         });
     }
 
@@ -129,9 +139,20 @@ class Item extends Model
     }
     public function getJumlahRusakAktifAttribute(): int
     {
-        return $this->itemRusaks()
-            ->whereIn('status', ['perbaikan', 'dibiarkan'])
+        // Gunakan hasil withSum() jika sudah tersedia
+        if (array_key_exists('total_rusak_aktif', $this->attributes)) {
+            return (int) ($this->attributes['total_rusak_aktif'] ?? 0);
+        }
+
+        // Fallback jika data agregasi belum tersedia
+        return (int) $this->itemRusaks()
+            ->aktif()
             ->sum('jumlah_rusak');
+    }
+
+    public function getStokBaikAttribute(): int
+    {
+        return (int) $this->jumlah_stok - $this->jumlah_rusak_aktif;
     }
 
 }

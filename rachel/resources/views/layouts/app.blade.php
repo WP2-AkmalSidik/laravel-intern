@@ -26,23 +26,61 @@
                 </h1>
             </a>
 
-            <div class="flex gap-6">
+
+            <div class="flex items-center gap-4">
+
+                {{-- Menu yang bisa diakses semua pengguna --}}
                 <a href="{{ route('items.index') }}"
                     class="px-4 py-2 rounded-lg transition
-    {{ request()->routeIs('items.index', 'items.create', 'items.edit', 'items.show')
-        ? 'bg-blue-50 text-[#2563EB] font-bold'
-        : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
+        {{ request()->routeIs('items.index', 'items.show')
+            ? 'bg-blue-50 text-[#2563EB] font-bold'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
                     Data Barang
                 </a>
 
-                <a href="{{ route('items.rusak.index') }}"
-                    class="px-4 py-2 rounded-lg transition
-    {{ request()->routeIs('items.rusak.*')
-        ? 'bg-blue-50 text-[#2563EB] font-bold'
-        : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
-                    Riwayat Kerusakan
-                </a>
+                {{-- Menu khusus Admin --}}
+                @auth
+                    <a href="{{ route('items.rusak.index') }}"
+                        class="px-4 py-2 rounded-lg transition
+            {{ request()->routeIs('items.rusak.*')
+                ? 'bg-blue-50 text-[#2563EB] font-bold'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
+                        Riwayat Kerusakan
+                    </a>
+
+                    <a href="{{ route('laporan.index') }}"
+                        class="px-4 py-2 rounded-lg transition
+            {{ request()->routeIs('laporan.*')
+                ? 'bg-blue-50 text-[#2563EB] font-bold'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
+                        Laporan
+                    </a>
+
+                    {{-- Identitas dan Logout Admin --}}
+                    <div class="flex items-center gap-3 border-l pl-4">
+                        <span class="text-sm font-medium text-gray-700">
+                            {{ Auth::user()->name }}
+                        </span>
+
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+
+                            <button type="submit"
+                                class="px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    {{-- Menu khusus Guest --}}
+                    <a href="{{ route('login') }}"
+                        class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
+                        Login
+                    </a>
+                @endauth
+
             </div>
+
         </div>
     </nav>
 

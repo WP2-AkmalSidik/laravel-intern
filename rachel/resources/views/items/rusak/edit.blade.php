@@ -116,7 +116,7 @@
                 <select name="status" class="w-full border rounded-lg px-3 py-2">
 
                     <option value="perbaikan" {{ old('status', $itemRusak->status) == 'perbaikan' ? 'selected' : '' }}>
-                        Sedang Diperbaiki
+                        Dalam Perbaikan
                     </option>
 
                     <option value="dibiarkan" {{ old('status', $itemRusak->status) == 'dibiarkan' ? 'selected' : '' }}>
