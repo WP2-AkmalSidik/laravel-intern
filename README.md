@@ -89,9 +89,9 @@ php artisan migrate
 
 ## 👥 Status Pengumpulan Tugas Peserta
 
-| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Catatan Review Mentor | Status Fase 2 |
+| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Status Fase 2 | Keterangan & Pengujian |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai (Referensi)** | — | 🌟 Benchmark |
-| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (Nilai: 95 / A+)** | [Review Rachel](./rachel/CATATAN_REVIEW_MENTOR.md) | 🚀 Siap Fase 2 |
-| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ⚠️ **Perlu Perbaikan (Nilai: 83)** | [Review Nabil](./nabil-hafiz/CATATAN_REVIEW_MENTOR.md) | ⏳ Selesaikan Catatan |
-| **Ridwan** | `ridwan/` | `intern/ridwan` | ⚠️ **Perlu Perbaikan (Nilai: 78)** | [Review Ridwan](./ridwan/CATATAN_REVIEW_MENTOR.md) | ⏳ Selesaikan Catatan |
+| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai (Referensi)** | 🌟 **Benchmark** | 12 Tests Passed |
+| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (Nilai: 95 / A+)** | ✅ **Merged to `main`** | 65 Tests Passed (Ekstra: Export PDF & Excel) |
+| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Revisi Selesai** | ✅ **Merged to `main`** | 5 Tests Passed (Relasi Dept, PDF Surat, Auth) |
+| **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **SQL Bug Selesai** | ⚠️ **Merged to `main` (Perlu Review)** | Perlu melengkapi Controller Upload & Rute Auth |
