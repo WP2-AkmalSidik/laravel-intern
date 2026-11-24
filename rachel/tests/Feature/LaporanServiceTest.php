@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Events\QueryExecuted;
 use Tests\TestCase;
 use App\Models\Category;
+use App\Models\ItemLoan;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class LaporanServiceTest extends TestCase
 {
@@ -45,6 +48,36 @@ class LaporanServiceTest extends TestCase
             'jumlah_rusak' => $jumlahRusak,
             'keterangan' => 'Pengujian ' . $status,
             'tanggal_rusak' => $tanggalRusak,
+            'status' => $status,
+        ]);
+    }
+
+    private function buatPeminjaman(
+        Item $item,
+        string $tanggalPinjam,
+        string $status = 'diajukan',
+        ?User $user = null
+    ): ItemLoan {
+        $user ??= User::create([
+            'name' => 'User Testing',
+            'email' => 'user-testing-' . uniqid() . '@test.local',
+            'password' => Hash::make('Password123!'),
+            'role' => 'admin',
+        ]);
+
+        return ItemLoan::create([
+            'user_id' => $user->id,
+            'item_id' => $item->id,
+            'jumlah_pinjam' => 2,
+            'tanggal_pinjam' => $tanggalPinjam,
+            'tenggat_kembali' => date(
+                'Y-m-d',
+                strtotime($tanggalPinjam . ' +7 days')
+            ),
+            'tanggal_kembali' => $status === 'dikembalikan'
+                ? date('Y-m-d', strtotime($tanggalPinjam . ' +5 days'))
+                : null,
+            'keperluan' => 'Pengujian laporan peminjaman',
             'status' => $status,
         ]);
     }
@@ -240,6 +273,115 @@ class LaporanServiceTest extends TestCase
         $this->assertCount(3, $hasil);
     }
 
+
+    // ==========================================
+// C. PENGUJIAN FILTER RIWAYAT PEMINJAMAN
+// ==========================================
+
+    public function test_peminjaman_difilter_berdasarkan_rentang_tanggal(): void
+    {
+        $item = $this->buatItem('Laptop Testing', '2026-01-01');
+
+        $sebelum = $this->buatPeminjaman(
+            $item,
+            '2025-12-31'
+        );
+
+        $awal = $this->buatPeminjaman(
+            $item,
+            '2026-01-01'
+        );
+
+        $akhir = $this->buatPeminjaman(
+            $item,
+            '2026-01-31'
+        );
+
+        $sesudah = $this->buatPeminjaman(
+            $item,
+            '2026-02-01'
+        );
+
+        $hasil = app(LaporanService::class)
+            ->getPeminjamanData('2026-01-01', '2026-01-31');
+
+        $this->assertCount(2, $hasil);
+        $this->assertTrue($hasil->contains('id', $awal->id));
+        $this->assertTrue($hasil->contains('id', $akhir->id));
+        $this->assertFalse($hasil->contains('id', $sebelum->id));
+        $this->assertFalse($hasil->contains('id', $sesudah->id));
+    }
+
+    public function test_peminjaman_difilter_dengan_tanggal_awal_saja(): void
+    {
+        $item = $this->buatItem('Laptop Testing', '2026-01-01');
+
+        $sebelum = $this->buatPeminjaman($item, '2025-12-31');
+        $awal = $this->buatPeminjaman($item, '2026-01-01');
+        $sesudah = $this->buatPeminjaman($item, '2026-02-01');
+
+        $hasil = app(LaporanService::class)
+            ->getPeminjamanData('2026-01-01');
+
+        $this->assertCount(2, $hasil);
+        $this->assertTrue($hasil->contains('id', $awal->id));
+        $this->assertTrue($hasil->contains('id', $sesudah->id));
+        $this->assertFalse($hasil->contains('id', $sebelum->id));
+    }
+
+    public function test_peminjaman_difilter_dengan_tanggal_akhir_saja(): void
+    {
+        $item = $this->buatItem('Laptop Testing', '2026-01-01');
+
+        $sebelum = $this->buatPeminjaman($item, '2025-12-31');
+        $akhir = $this->buatPeminjaman($item, '2026-01-31');
+        $sesudah = $this->buatPeminjaman($item, '2026-02-01');
+
+        $hasil = app(LaporanService::class)
+            ->getPeminjamanData(null, '2026-01-31');
+
+        $this->assertCount(2, $hasil);
+        $this->assertTrue($hasil->contains('id', $sebelum->id));
+        $this->assertTrue($hasil->contains('id', $akhir->id));
+        $this->assertFalse($hasil->contains('id', $sesudah->id));
+    }
+    public function test_peminjaman_mengembalikan_semua_data_tanpa_filter(): void
+    {
+        $item = $this->buatItem('Laptop Testing', '2026-01-01');
+
+        $this->buatPeminjaman($item, '2025-12-31');
+        $this->buatPeminjaman($item, '2026-01-15');
+        $this->buatPeminjaman($item, '2026-02-01');
+
+        $hasil = app(LaporanService::class)
+            ->getPeminjamanData();
+
+        $this->assertCount(3, $hasil);
+    }
+
+    public function test_rekap_peminjaman_menghitung_setiap_status_dengan_benar(): void
+    {
+        $item = $this->buatItem('Laptop Testing', '2026-01-01');
+
+        $this->buatPeminjaman($item, '2026-01-01', 'diajukan');
+        $this->buatPeminjaman($item, '2026-01-02', 'diajukan');
+        $this->buatPeminjaman($item, '2026-01-03', 'disetujui');
+        $this->buatPeminjaman($item, '2026-01-04', 'ditolak');
+        $this->buatPeminjaman($item, '2026-01-05', 'dikembalikan');
+
+        $service = app(LaporanService::class);
+
+        $peminjaman = $service->getPeminjamanData();
+
+        $rekap = $service->getRekapPeminjaman($peminjaman);
+
+        $this->assertSame([
+            'diajukan' => 2,
+            'disetujui' => 1,
+            'ditolak' => 1,
+            'dikembalikan' => 1,
+        ], $rekap);
+    }
     // ==========================================
     // C. PENGUJIAN ACCESSOR DAN N+1 QUERY
     // ==========================================
@@ -345,9 +487,13 @@ class LaporanServiceTest extends TestCase
 
         $items = $service->getInventarisData();
         $kerusakan = $service->getKerusakanData();
+        $peminjaman = $service->getPeminjamanData();
 
-        $ringkasan = $service->getRingkasanData($items, $kerusakan);
-
+        $ringkasan = $service->getRingkasanData(
+            $items,
+            $kerusakan,
+            $peminjaman
+        );
         $this->assertEquals(4, $ringkasan['total_jenis_item']);
         $this->assertEquals(40, $ringkasan['total_stok']);
         $this->assertEquals(23, $ringkasan['total_stok_baik']);
@@ -376,8 +522,13 @@ class LaporanServiceTest extends TestCase
 
         $items = $service->getInventarisData();
         $kerusakan = $service->getKerusakanData();
+        $peminjaman = $service->getPeminjamanData();
 
-        $ringkasan = $service->getRingkasanData($items, $kerusakan);
+        $ringkasan = $service->getRingkasanData(
+            $items,
+            $kerusakan,
+            $peminjaman
+        );
 
         $this->assertEquals([
             'total_jenis_item' => 0,
@@ -399,6 +550,14 @@ class LaporanServiceTest extends TestCase
                 'perbaikan' => 0,
                 'dibiarkan' => 0,
                 'selesai_diperbaiki' => 0,
+            ],
+
+            'total_peminjaman' => 0,
+            'rekap_peminjaman' => [
+                'diajukan' => 0,
+                'disetujui' => 0,
+                'ditolak' => 0,
+                'dikembalikan' => 0,
             ],
         ], $ringkasan);
     }

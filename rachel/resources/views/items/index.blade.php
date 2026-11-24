@@ -14,11 +14,11 @@
                 Kelola seluruh data aset dan barang.
             </p>
         </div>
-        @auth
+        @can('manage-items')
             <a href="{{ route('items.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 + Tambah Barang
             </a>
-        @endauth
+        @endcan
     </div>
 
     {{-- Statistik --}}
@@ -232,41 +232,42 @@
                             {{ $item->lokasi_ruangan }}
                         </td>
 
-
                         <td class="px-4 py-3">
                             <div class="flex flex-wrap items-center gap-2">
 
-                                {{-- Lihat: Publik dan Admin --}}
+                                {{-- Bisa diakses semua pengguna --}}
                                 <a href="{{ route('items.show', $item->id) }}"
                                     class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition">
                                     Lihat
                                 </a>
 
                                 {{-- Khusus Admin --}}
-                                @auth
-                                    {{-- Edit --}}
+                                @can('manage-items')
                                     <a href="{{ route('items.edit', $item->id) }}"
                                         class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-xs font-medium hover:bg-amber-100 transition">
                                         Edit
                                     </a>
+                                @endcan
 
-                                    {{-- Catat Rusak --}}
+                                {{-- Admin dan Staff --}}
+                                @can('manage-inventory')
                                     <a href="{{ route('items.rusak.create', $item->id) }}"
                                         class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 text-xs font-medium hover:bg-orange-100 transition">
                                         Catat Rusak
                                     </a>
+                                @endcan
 
-                                    {{-- Hapus --}}
+                                {{-- Khusus Admin --}}
+                                @can('manage-items')
                                     <button type="button"
                                         onclick="bukaModalHapus('{{ route('items.destroy', $item->id) }}', @js($item->nama_barang))"
                                         class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition">
                                         Hapus
                                     </button>
-                                @endauth
+                                @endcan
 
                             </div>
                         </td>
-
 
                     </tr>
 

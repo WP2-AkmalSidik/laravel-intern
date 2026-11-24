@@ -21,6 +21,7 @@ class ItemRusakTest extends TestCase
             'name' => 'Administrator',
             'email' => 'admin@test.local',
             'password' => Hash::make('Password123!'),
+            'role' => 'admin',
         ]);
 
         $this->actingAs($admin);

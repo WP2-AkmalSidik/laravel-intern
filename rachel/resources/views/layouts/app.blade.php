@@ -26,10 +26,9 @@
                 </h1>
             </a>
 
-
             <div class="flex items-center gap-4">
 
-                {{-- Menu yang bisa diakses semua pengguna --}}
+                {{-- Menu Publik --}}
                 <a href="{{ route('items.index') }}"
                     class="px-4 py-2 rounded-lg transition
         {{ request()->routeIs('items.index', 'items.show')
@@ -37,9 +36,18 @@
             : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
                     Data Barang
                 </a>
-
-                {{-- Menu khusus Admin --}}
                 @auth
+                    <a href="{{ route('loans.index') }}"
+                        class="px-4 py-2 rounded-lg transition
+        {{ request()->routeIs('loans.*')
+            ? 'bg-blue-50 text-[#2563EB] font-bold'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
+                        Peminjaman
+                    </a>
+                @endauth
+
+                {{-- Admin dan Staff --}}
+                @can('manage-inventory')
                     <a href="{{ route('items.rusak.index') }}"
                         class="px-4 py-2 rounded-lg transition
             {{ request()->routeIs('items.rusak.*')
@@ -47,7 +55,10 @@
                 : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
                         Riwayat Kerusakan
                     </a>
+                @endcan
 
+                {{-- Khusus Admin --}}
+                @can('export-reports')
                     <a href="{{ route('laporan.index') }}"
                         class="px-4 py-2 rounded-lg transition
             {{ request()->routeIs('laporan.*')
@@ -55,12 +66,20 @@
                 : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
                         Laporan
                     </a>
+                @endcan
 
-                    {{-- Identitas dan Logout Admin --}}
+                {{-- Informasi Pengguna dan Logout --}}
+                @auth
                     <div class="flex items-center gap-3 border-l pl-4">
-                        <span class="text-sm font-medium text-gray-700">
-                            {{ Auth::user()->name }}
-                        </span>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-700">
+                                {{ Auth::user()->name }}
+                            </p>
+
+                            <p class="text-xs text-gray-500 capitalize">
+                                {{ Auth::user()->role }}
+                            </p>
+                        </div>
 
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -72,7 +91,7 @@
                         </form>
                     </div>
                 @else
-                    {{-- Menu khusus Guest --}}
+                    {{-- Guest --}}
                     <a href="{{ route('login') }}"
                         class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
                         Login
@@ -80,6 +99,7 @@
                 @endauth
 
             </div>
+
 
         </div>
     </nav>

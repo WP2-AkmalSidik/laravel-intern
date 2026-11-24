@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Item extends Model
 {
@@ -153,6 +154,11 @@ class Item extends Model
     public function getStokBaikAttribute(): int
     {
         return (int) $this->jumlah_stok - $this->jumlah_rusak_aktif;
+    }
+
+    public function itemLoans(): HasMany
+    {
+        return $this->hasMany(ItemLoan::class);
     }
 
 }
