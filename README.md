@@ -54,9 +54,11 @@ Setiap peserta magang membuat proyek Laravel mandiri di root repository sejajar 
 
 ## 📋 Spesifikasi Tugas & Modul
 
-Detail lengkap instruksi pengerjaan tugas langkah demi langkah (*step-by-step*), pilihan topik kasus studi, dan kriteria kelulusan PR dapat dibaca di:
+Detail instruksi pengerjaan tugas langkah demi langkah (*step-by-step*), studi kasus, dan kriteria kelulusan PR:
 
-👉 **[TUGAS_MAGANG.md](./TUGAS_MAGANG.md)**
+- 👉 **[TUGAS_MAGANG.md](./TUGAS_MAGANG.md)** — **Fase 1:** Fondasi MVC, CRUD, Eloquent ORM, Validasi, Request & Response
+- 👉 **[TUGAS_FASE_2.md](./TUGAS_FASE_2.md)** — **Fase 2:** Relasi Database (Eloquent), Upload File & Media, Middleware Protection, & Feature Tests
+- 👉 **[TUGAS_FASE_3.md](./TUGAS_FASE_3.md)** — **Fase 3:** Role-Based Access Control (RBAC), Relasi Many-to-Many, Database Transactions, & Service Layer
 
 ---
 
@@ -81,15 +83,16 @@ cd <nama-kamu>
 # 5. Jalankan migrasi awal
 php artisan migrate
 
-# 6. Kerjakan tugas sesuai panduan TUGAS_MAGANG.md
+# 6. Kerjakan tugas sesuai panduan TUGAS_MAGANG.md & TUGAS_FASE_2.md
 ```
 
 ---
 
 ## 👥 Status Pengumpulan Tugas Peserta
 
-| Nama Peserta | Folder Kerja | Branch Kerja | Status Tugas |
-| :--- | :--- | :--- | :--- |
-| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai (Referensi)** |
-| Peserta 1 | `<nama-1>/` | `intern/<nama-1>` | 🔄 Dalam Pengerjaan |
-| Peserta 2 | `<nama-2>/` | `intern/<nama-2>` | 🔄 Dalam Pengerjaan |
+| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Status Fase 2 | Keterangan & Pengujian |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai (Referensi)** | 🌟 **Benchmark** | 12 Tests Passed |
+| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (Nilai: 95 / A+)** | ✅ **Merged to `main`** | 65 Tests Passed (Ekstra: Export PDF & Excel) |
+| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Revisi Selesai** | ✅ **Merged to `main`** | 5 Tests Passed (Relasi Dept, PDF Surat, Auth) |
+| **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **SQL Bug Selesai** | ⚠️ **Merged to `main` (Perlu Review)** | Perlu melengkapi Controller Upload & Rute Auth |

@@ -1,0 +1,40 @@
+# ==========================================
+# Root .gitignore untuk Repositori Magang
+# ==========================================
+
+# Dependencies
+*/vendor/
+*/node_modules/
+
+# Environment files (Kredensial Lokal)
+.env
+*/.env
+*/.env.backup
+*/.env.production
+*/.env.*.local
+
+# Database SQLite Lokal
+*/database/*.sqlite
+*/database/*.sqlite-journal
+
+# Logs & Framework Runtime Caches
+*/storage/logs/*.log
+*/storage/framework/cache/data/*
+*/storage/framework/sessions/*
+*/storage/framework/views/*
+!*/storage/logs/.gitignore
+!*/storage/framework/cache/.gitignore
+!*/storage/framework/sessions/.gitignore
+!*/storage/framework/views/.gitignore
+
+# Bootstrap Caches
+*/bootstrap/cache/*.php
+!*/bootstrap/cache/.gitignore
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*/.idea/
+*/.vscode/
