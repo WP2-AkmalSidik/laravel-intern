@@ -17,14 +17,16 @@
             </p>
         </div>
 
+
         <div class="flex gap-3">
-            {{-- Bisa diakses semua pengguna --}}
+
+            {{-- Bisa diakses semua role --}}
             <a href="{{ route('items.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
                 Kembali
             </a>
 
             {{-- Khusus Admin --}}
-            @auth
+            @can('manage-items')
                 <a href="{{ route('items.edit', $item->id) }}"
                     class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     Edit Barang
@@ -34,10 +36,11 @@
                     onclick="bukaModalHapus('{{ route('items.destroy', $item->id) }}', @js($item->nama_barang))"
                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                     Hapus Barang
-
                 </button>
-            @endauth
+            @endcan
+
         </div>
+
     </div>
 
     {{-- Foto Barang --}}

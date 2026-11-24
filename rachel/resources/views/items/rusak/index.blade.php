@@ -16,12 +16,12 @@
             </p>
         </div>
 
-        {{-- Khusus Admin --}}
-        @auth
+        {{-- Khusus Admin dan Staff --}}
+        @can('manage-inventory')
             <a href="{{ route('items.index') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 + Catat Kerusakan
             </a>
-        @endauth
+        @endcan
     </div>
 
     {{-- Statistik --}}
@@ -113,7 +113,9 @@
                     <th class="px-4 py-3">Tanggal Rusak</th>
                     <th class="px-4 py-3">Keterangan</th>
                     <th class="px-4 py-3">Status</th>
-                    @auth <th class="px-4 py-3">Aksi</th>@endauth
+                    @can('manage-inventory')
+                        <th class="px-4 py-3">Aksi</th>
+                    @endcan
                 </tr>
             </thead>
 
@@ -152,7 +154,7 @@
                                 {{ $itemRusak->label_status }}
                             </span>
                         </td>
-                        @auth
+                        @can('manage-inventory')
                             <td class="px-4 py-3">
                                 <a href="{{ route('items.rusak.edit', [
                                     'item' => $itemRusak->item_id,
@@ -170,7 +172,7 @@
 
                                 </a>
                             </td>
-                        @endauth
+                        @endcan
                     </tr>
 
                 @empty

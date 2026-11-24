@@ -6,13 +6,13 @@ use App\Http\Controllers\ItemRusakController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\AuthController;
 
+// ==========================================
+// RUTE PUBLIK
+// ==========================================
+
 Route::get('/', function () {
     return redirect()->route('items.index');
 });
-
-// ==========================================
-// RUTE PUBLIK (TANPA LOGIN)
-// ==========================================
 
 Route::get('/items', [ItemController::class, 'index'])
     ->name('items.index');
@@ -23,57 +23,83 @@ Route::get('/items/{item}', [ItemController::class, 'show'])
 
 
 // ==========================================
-// RUTE ADMIN (WAJIB LOGIN)
+// RUTE ADMIN DAN STAFF
 // ==========================================
 
 Route::middleware(['auth'])->group(function () {
 
-    // CRUD barang selain Index dan Show
-    Route::resource('items', ItemController::class)
-        ->except(['index', 'show']);
+    // --------------------------------------
+    // KHUSUS ADMIN: KELOLA MASTER BARANG
+    // --------------------------------------
 
-    // Riwayat kerusakan
-    Route::get('/items/rusak', [ItemRusakController::class, 'index'])
-        ->name('items.rusak.index');
+    Route::middleware('can:manage-items')->group(function () {
 
-    // Form tambah kerusakan
-    Route::get('/items/{item}/rusak/create', [ItemRusakController::class, 'create'])
-        ->name('items.rusak.create');
+        Route::resource('items', ItemController::class)
+            ->except(['index', 'show']);
 
-    // Form edit kerusakan
-    Route::get('/items/{item}/rusak/{itemRusak}/edit', [ItemRusakController::class, 'edit'])
-        ->name('items.rusak.edit');
+    });
 
-    // Simpan perubahan kerusakan
-    Route::put('/items/{item}/rusak/{itemRusak}', [ItemRusakController::class, 'update'])
-        ->name('items.rusak.update');
 
-    // Simpan kerusakan baru
-    Route::post('/items/{item}/rusak', [ItemRusakController::class, 'store'])
-        ->name('items.rusak.store');
+    // --------------------------------------
+    // ADMIN DAN STAFF: OPERASIONAL INVENTARIS
+    // --------------------------------------
 
-    // Laporan inventaris
-    Route::get('/laporan', [LaporanController::class, 'index'])
-        ->name('laporan.index');
+    Route::middleware('can:manage-inventory')->group(function () {
 
-    // Ekspor PDF
-    Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])
-        ->name('laporan.pdf');
+        // Riwayat kerusakan
+        Route::get('/items/rusak', [ItemRusakController::class, 'index'])
+            ->name('items.rusak.index');
 
-    // Ekspor Excel
-    Route::get('/laporan/excel', [LaporanController::class, 'exportExcel'])
-        ->name('laporan.excel');
+        // Form tambah kerusakan
+        Route::get('/items/{item}/rusak/create', [ItemRusakController::class, 'create'])
+            ->name('items.rusak.create');
 
-    // API ringkasan inventaris
-    Route::get('/api/items-summary', [ItemController::class, 'apiSummary'])
-        ->name('items.api-summary');
+        // Form edit kerusakan
+        Route::get('/items/{item}/rusak/{itemRusak}/edit', [ItemRusakController::class, 'edit'])
+            ->name('items.rusak.edit');
+
+        // Simpan perubahan kerusakan
+        Route::put('/items/{item}/rusak/{itemRusak}', [ItemRusakController::class, 'update'])
+            ->name('items.rusak.update');
+
+        // Simpan kerusakan baru
+        Route::post('/items/{item}/rusak', [ItemRusakController::class, 'store'])
+            ->name('items.rusak.store');
+
+        // API ringkasan inventaris
+        Route::get('/api/items-summary', [ItemController::class, 'apiSummary'])
+            ->name('items.api-summary');
+    });
+
+
+    // --------------------------------------
+    // KHUSUS ADMIN: LAPORAN
+    // --------------------------------------
+
+    Route::middleware('can:export-reports')->group(function () {
+
+        // Halaman laporan
+        Route::get('/laporan', [LaporanController::class, 'index'])
+            ->name('laporan.index');
+
+        // Ekspor PDF
+        Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])
+            ->name('laporan.pdf');
+
+        // Ekspor Excel
+        Route::get('/laporan/excel', [LaporanController::class, 'exportExcel'])
+            ->name('laporan.excel');
+    });
+
 });
+
 
 // ==========================================
 // RUTE AUTENTIKASI
 // ==========================================
 
 Route::middleware('guest')->group(function () {
+
     Route::get('/login', [AuthController::class, 'showLoginForm'])
         ->name('login');
 

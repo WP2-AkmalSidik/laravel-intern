@@ -12,15 +12,16 @@
         <p class="text-gray-500 mt-1">
             Ringkasan data inventaris dan riwayat kerusakan barang.
         </p>
-
-        <a href="{{ route('laporan.pdf', ['from' => $from, 'to' => $to]) }}"
-            class="inline-block mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-            Download PDF
-        </a>
-        <a href="{{ route('laporan.excel', ['from' => $from, 'to' => $to]) }}"
-            class="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-            Download Excel
-        </a>
+        @can('export-reports')
+            <a href="{{ route('laporan.pdf', ['from' => $from, 'to' => $to]) }}"
+                class="inline-block mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                Download PDF
+            </a>
+            <a href="{{ route('laporan.excel', ['from' => $from, 'to' => $to]) }}"
+                class="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                Download Excel
+            </a>
+        @endcan
     </div>
     {{-- Filter Periode --}}
     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
