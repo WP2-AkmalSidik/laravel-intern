@@ -96,4 +96,4 @@ php artisan migrate
 | **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai** | 🌟 **Benchmark** | 🌟 **Benchmark** | 12 Tests Passed |
 | **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (95)** | ✅ **Lulus (98)** | ✅ **Lulus (99)** | 🌟 **100 Tests Passed** (Loan, RBAC, Services, Export) |
 | **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **Lulus (78)** | ✅ **Lunas (80)** | ✅ **Lulus (94)** | 🌟 **20 Tests Passed** (Loan Sirkulasi, Denda, Cover Upload) |
-| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Lulus (83)** | ✅ **Lulus (92)** | ⏳ **In Progress** | 5 Tests Passed (Fase 3 Sedang Dikerjakan) |
+| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Lulus (83)** | ✅ **Lulus (92)** | ✅ **Lulus (96)** | 🌟 **30 Tests Passed** (Disposisi Workflow, RBAC, Lock) |
