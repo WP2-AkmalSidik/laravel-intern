@@ -59,6 +59,7 @@ Detail instruksi pengerjaan tugas langkah demi langkah (*step-by-step*), studi k
 - 👉 **[TUGAS_MAGANG.md](./TUGAS_MAGANG.md)** — **Fase 1:** Fondasi MVC, CRUD, Eloquent ORM, Validasi, Request & Response
 - 👉 **[TUGAS_FASE_2.md](./TUGAS_FASE_2.md)** — **Fase 2:** Relasi Database (Eloquent), Upload File & Media, Middleware Protection, & Feature Tests
 - 👉 **[TUGAS_FASE_3.md](./TUGAS_FASE_3.md)** — **Fase 3:** Role-Based Access Control (RBAC), Relasi Many-to-Many, Database Transactions, & Service Layer
+- 👉 **[TUGAS_FASE_4.md](./TUGAS_FASE_4.md)** — **Fase 4 (Capstone Final):** RESTful API Sanctum, Asynchronous Queues & Notifikasi Email, & Performance Caching
 
 ---
 
@@ -83,16 +84,16 @@ cd <nama-kamu>
 # 5. Jalankan migrasi awal
 php artisan migrate
 
-# 6. Kerjakan tugas sesuai panduan TUGAS_MAGANG.md & TUGAS_FASE_2.md
+# 6. Kerjakan tugas sesuai panduan TUGAS_MAGANG.md, TUGAS_FASE_2.md, TUGAS_FASE_3.md, & TUGAS_FASE_4.md
 ```
 
 ---
 
 ## 👥 Status Pengumpulan Tugas Peserta
 
-| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Status Fase 2 | Keterangan & Pengujian |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai (Referensi)** | 🌟 **Benchmark** | 12 Tests Passed |
-| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (Nilai: 95 / A+)** | ✅ **Merged to `main`** | 65 Tests Passed (Ekstra: Export PDF & Excel) |
-| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Revisi Selesai** | ✅ **Merged to `main`** | 5 Tests Passed (Relasi Dept, PDF Surat, Auth) |
-| **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **SQL Bug Selesai** | ⚠️ **Merged to `main` (Perlu Review)** | Perlu melengkapi Controller Upload & Rute Auth |
+| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Status Fase 2 | Status Fase 3 | Keterangan & Pengujian |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai** | 🌟 **Benchmark** | 🌟 **Benchmark** | 12 Tests Passed |
+| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (95)** | ✅ **Lulus (98)** | ✅ **Lulus (99)** | 🌟 **100 Tests Passed** (Loan, RBAC, Services, Export) |
+| **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **Lulus (78)** | ✅ **Lunas (80)** | ✅ **Lulus (94)** | 🌟 **20 Tests Passed** (Loan Sirkulasi, Denda, Cover Upload) |
+| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Lulus (83)** | ✅ **Lulus (92)** | ⏳ **In Progress** | 5 Tests Passed (Fase 3 Sedang Dikerjakan) |
