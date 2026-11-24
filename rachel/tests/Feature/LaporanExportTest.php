@@ -13,6 +13,8 @@ use App\Exports\RiwayatKerusakanSheet;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Exports\RiwayatPeminjamanSheet;
+use App\Models\ItemLoan;
 
 class LaporanExportTest extends TestCase
 {
@@ -62,6 +64,28 @@ class LaporanExportTest extends TestCase
             'jumlah_rusak' => $jumlahRusak,
             'keterangan' => 'Pengujian export',
             'tanggal_rusak' => $tanggalRusak,
+            'status' => $status,
+        ]);
+    }
+
+    private function buatPeminjaman(
+        Item $item,
+        string $tanggalPinjam,
+        string $status = 'diajukan'
+    ): ItemLoan {
+        return ItemLoan::create([
+            'user_id' => User::firstOrFail()->id,
+            'item_id' => $item->id,
+            'jumlah_pinjam' => 2,
+            'tanggal_pinjam' => $tanggalPinjam,
+            'tenggat_kembali' => date(
+                'Y-m-d',
+                strtotime($tanggalPinjam . ' +7 days')
+            ),
+            'tanggal_kembali' => $status === 'dikembalikan'
+                ? date('Y-m-d', strtotime($tanggalPinjam . ' +5 days'))
+                : null,
+            'keperluan' => 'Pengujian export peminjaman',
             'status' => $status,
         ]);
     }
@@ -185,6 +209,17 @@ class LaporanExportTest extends TestCase
             '2026-02-20',
             'dibiarkan'
         );
+        $this->buatPeminjaman(
+            $barangJanuari,
+            '2026-01-20',
+            'disetujui'
+        );
+
+        $this->buatPeminjaman(
+            $barangFebruari,
+            '2026-02-20',
+            'ditolak'
+        );
 
         $this->get(route('laporan.excel', [
             'from' => '2026-01-01',
@@ -204,6 +239,8 @@ class LaporanExportTest extends TestCase
 
                 $kerusakan = $sheets[2]->collection()->values()->all();
 
+                $peminjaman = $sheets[3]->collection()->values()->all();
+
                 // Periksa periode laporan
                 $periodeBenar = $ringkasan[1][1] ===
                     '01-01-2026 s.d. 31-01-2026';
@@ -220,11 +257,19 @@ class LaporanExportTest extends TestCase
                     2
                 );
 
+                // Periksa riwayat peminjaman
+                $namaPeminjaman = array_column(
+                    $peminjaman,
+                    2
+                );
+
                 return $periodeBenar
                     && in_array('Laptop Januari', $namaInventaris)
                     && !in_array('Printer Februari', $namaInventaris)
                     && in_array('Laptop Januari', $namaKerusakan)
-                    && !in_array('Printer Februari', $namaKerusakan);
+                    && !in_array('Printer Februari', $namaKerusakan)
+                    && in_array('Laptop Januari', $namaPeminjaman)
+                    && !in_array('Printer Februari', $namaPeminjaman);
             }
         );
     }
@@ -239,26 +284,32 @@ class LaporanExportTest extends TestCase
             'laporan-inventaris-' . now()->format('Y-m-d') . '.xlsx',
             function (LaporanExport $export) {
 
-                /** @var array{0: RingkasanSheet, 1: DataInventarisSheet, 2: RiwayatKerusakanSheet} $sheets */
+                /** @var array{0: RingkasanSheet, 1: DataInventarisSheet, 2: RiwayatKerusakanSheet, 3: RiwayatPeminjamanSheet} $sheets */
                 $sheets = $export->sheets();
 
                 $ringkasan = $sheets[0]->collection()->values()->all();
-
                 $inventaris = $sheets[1]->collection()->values()->all();
-
                 $kerusakan = $sheets[2]->collection()->values()->all();
+                $peminjaman = $sheets[3]->collection()->values()->all();
 
                 return
                     // Statistik inventaris harus nol
                     $ringkasan[3][1] === 0
                     && $ringkasan[4][1] === 0
 
+                    // Statistik peminjaman harus nol
+                    && $ringkasan[24][1] === 0
+
                     // Sheet inventaris tetap memiliki header
                     && count($inventaris) === 1
 
                     // Sheet kerusakan memiliki pesan data kosong
                     && ($kerusakan[1][0] ?? null)
-                    === 'Tidak ada riwayat kerusakan';
+                    === 'Tidak ada riwayat kerusakan'
+
+                    // Sheet peminjaman memiliki pesan data kosong
+                    && ($peminjaman[1][0] ?? null)
+                    === 'Tidak ada riwayat peminjaman';
             }
         );
     }

@@ -5,6 +5,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemRusakController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ItemLoanController;
 
 // ==========================================
 // RUTE PUBLIK
@@ -89,6 +90,33 @@ Route::middleware(['auth'])->group(function () {
         // Ekspor Excel
         Route::get('/laporan/excel', [LaporanController::class, 'exportExcel'])
             ->name('laporan.excel');
+    });
+
+
+    // Peminjaman barang
+    Route::get('/peminjaman', [ItemLoanController::class, 'index'])
+        ->name('loans.index');
+
+    Route::get('/peminjaman/create', [ItemLoanController::class, 'create'])
+        ->name('loans.create');
+
+    Route::get('/peminjaman/{loan}', [ItemLoanController::class, 'show'])
+        ->name('loans.show');
+
+    Route::post('/peminjaman', [ItemLoanController::class, 'store'])
+        ->name('loans.store');
+
+    // Aksi khusus admin dan staff
+    Route::middleware('can:manage-inventory')->group(function () {
+
+        Route::patch('/peminjaman/{loan}/setujui', [ItemLoanController::class, 'setujui'])
+            ->name('loans.setujui');
+
+        Route::patch('/peminjaman/{loan}/tolak', [ItemLoanController::class, 'tolak'])
+            ->name('loans.tolak');
+
+        Route::patch('/peminjaman/{loan}/kembalikan', [ItemLoanController::class, 'kembalikan'])
+            ->name('loans.kembalikan');
     });
 
 });

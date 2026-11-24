@@ -257,7 +257,54 @@
             </tbody>
         </table>
 
-    </div>{{-- Data Inventaris --}}
+    </div>
+    {{-- Rekap Peminjaman --}}
+    <div class="section">
+
+        <h2 class="section-title">Rekap Peminjaman</h2>
+
+        <table class="summary-table">
+            <tr>
+                <td class="summary-label">Total Peminjaman</td>
+                <td class="summary-value">
+                    {{ number_format($ringkasan['total_peminjaman']) }}
+                </td>
+            </tr>
+        </table>
+
+        <table class="recap-table" style="margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Jumlah Pengajuan</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Diajukan</td>
+                    <td>{{ number_format($ringkasan['rekap_peminjaman']['diajukan']) }}</td>
+                </tr>
+
+                <tr>
+                    <td>Disetujui</td>
+                    <td>{{ number_format($ringkasan['rekap_peminjaman']['disetujui']) }}</td>
+                </tr>
+
+                <tr>
+                    <td>Ditolak</td>
+                    <td>{{ number_format($ringkasan['rekap_peminjaman']['ditolak']) }}</td>
+                </tr>
+
+                <tr>
+                    <td>Dikembalikan</td>
+                    <td>{{ number_format($ringkasan['rekap_peminjaman']['dikembalikan']) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    {{-- Data Inventaris --}}
     <div class="section page-break">
 
         <h2 class="section-title">Data Inventaris</h2>
@@ -359,7 +406,61 @@
         </table>
 
     </div>
+    {{-- Riwayat Peminjaman --}}
+    <div class="section page-break">
 
+        <h2 class="section-title">Riwayat Peminjaman</h2>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Peminjam</th>
+                    <th>Kode Barang</th>
+                    <th>Nama Barang</th>
+                    <th>Jumlah Pinjam</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tenggat Kembali</th>
+                    <th>Tanggal Kembali</th>
+                    <th>Keperluan</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @forelse ($peminjaman as $index => $loan)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+
+                        <td>{{ $loan->user?->name ?? '-' }}</td>
+
+                        <td>{{ $loan->item?->kode_barang ?? '-' }}</td>
+
+                        <td>{{ $loan->item?->nama_barang ?? '-' }}</td>
+
+                        <td>{{ number_format($loan->jumlah_pinjam) }}</td>
+
+                        <td>{{ $loan->tanggal_pinjam?->format('d-m-Y') ?? '-' }}</td>
+
+                        <td>{{ $loan->tenggat_kembali?->format('d-m-Y') ?? '-' }}</td>
+
+                        <td>{{ $loan->tanggal_kembali?->format('d-m-Y') ?? '-' }}</td>
+
+                        <td>{{ $loan->keperluan ?? '-' }}</td>
+
+                        <td>{{ ucfirst($loan->status) }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="10" style="text-align: center;">
+                            Tidak ada riwayat peminjaman.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+    </div>
 </body>
 
 

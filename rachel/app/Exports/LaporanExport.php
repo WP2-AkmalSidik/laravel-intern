@@ -11,6 +11,7 @@ class LaporanExport implements Export, WithMultipleSheets
     protected array $ringkasan;
     protected Collection $items;
     protected Collection $kerusakan;
+    protected Collection $peminjaman;
     protected ?string $from;
     protected ?string $to;
 
@@ -18,12 +19,14 @@ class LaporanExport implements Export, WithMultipleSheets
         array $ringkasan,
         Collection $items,
         Collection $kerusakan,
+        Collection $peminjaman,
         ?string $from = null,
         ?string $to = null
     ) {
         $this->ringkasan = $ringkasan;
         $this->items = $items;
         $this->kerusakan = $kerusakan;
+        $this->peminjaman = $peminjaman;
         $this->from = $from;
         $this->to = $to;
     }
@@ -34,6 +37,7 @@ class LaporanExport implements Export, WithMultipleSheets
             new RingkasanSheet($this->ringkasan, $this->from, $this->to),
             new DataInventarisSheet($this->items),
             new RiwayatKerusakanSheet($this->kerusakan),
+            new RiwayatPeminjamanSheet($this->peminjaman),
         ];
     }
 }

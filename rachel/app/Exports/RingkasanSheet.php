@@ -64,6 +64,15 @@ class RingkasanSheet implements FromCollection, WithTitle, WithStyles, WithColum
             ['Dalam Perbaikan', $this->ringkasan['rekap_kerusakan']['perbaikan'] ?? 0],
             ['Belum Diperbaiki', $this->ringkasan['rekap_kerusakan']['dibiarkan'] ?? 0],
             ['Selesai Diperbaiki', $this->ringkasan['rekap_kerusakan']['selesai_diperbaiki'] ?? 0],
+            [''],
+            ['Statistik Peminjaman', 'Jumlah'],
+            ['Total Peminjaman', $this->ringkasan['total_peminjaman'] ?? 0],
+            [''],
+            ['Rekap Status Peminjaman', 'Jumlah Pengajuan'],
+            ['Diajukan', $this->ringkasan['rekap_peminjaman']['diajukan'] ?? 0],
+            ['Disetujui', $this->ringkasan['rekap_peminjaman']['disetujui'] ?? 0],
+            ['Ditolak', $this->ringkasan['rekap_peminjaman']['ditolak'] ?? 0],
+            ['Dikembalikan', $this->ringkasan['rekap_peminjaman']['dikembalikan'] ?? 0],
         ]);
     }
     public function title(): string
@@ -82,6 +91,8 @@ class RingkasanSheet implements FromCollection, WithTitle, WithStyles, WithColum
             'A9:B13',
             'A15:B17',
             'A19:B22',
+            'A24:B25',
+            'A27:B31',
         ];
 
         foreach ($ranges as $range) {
@@ -119,6 +130,8 @@ class RingkasanSheet implements FromCollection, WithTitle, WithStyles, WithColum
             9 => $this->headerStyle(),
             15 => $this->headerStyle(),
             19 => $this->headerStyle(),
+            24 => $this->headerStyle(),
+            27 => $this->headerStyle(),
         ];
     }
 

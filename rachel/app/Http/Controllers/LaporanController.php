@@ -23,13 +23,19 @@ class LaporanController extends Controller
         $to = $validated['to'] ?? null;
 
         $items = $laporanService->getInventarisData($from, $to);
-
         $kerusakan = $laporanService->getKerusakanData($from, $to);
+        $peminjaman = $laporanService->getPeminjamanData($from, $to);
 
-        $ringkasan = $laporanService->getRingkasanData($items, $kerusakan);
+        $ringkasan = $laporanService->getRingkasanData(
+            $items,
+            $kerusakan,
+            $peminjaman
+        );
+
         return view('laporan.index', compact(
             'items',
             'kerusakan',
+            'peminjaman',
             'ringkasan',
             'from',
             'to'
@@ -50,12 +56,15 @@ class LaporanController extends Controller
 
         $kerusakan = $laporanService->getKerusakanData($from, $to);
 
-        $ringkasan = $laporanService->getRingkasanData($items, $kerusakan);
+        $peminjaman = $laporanService->getPeminjamanData($from, $to);
+
+        $ringkasan = $laporanService->getRingkasanData($items, $kerusakan, $peminjaman);
 
         $pdf = Pdf::loadView('laporan.pdf', compact(
             'items',
             'kerusakan',
             'ringkasan',
+            'peminjaman',
             'from',
             'to'
         ))->setPaper('a4', 'landscape');
@@ -75,10 +84,11 @@ class LaporanController extends Controller
 
         $items = $laporanService->getInventarisData($from, $to);
         $kerusakan = $laporanService->getKerusakanData($from, $to);
-        $ringkasan = $laporanService->getRingkasanData($items, $kerusakan);
+        $peminjaman = $laporanService->getPeminjamanData($from, $to);
+        $ringkasan = $laporanService->getRingkasanData($items, $kerusakan, $peminjaman);
 
         return Excel::download(
-            new LaporanExport($ringkasan, $items, $kerusakan, $from, $to),
+            new LaporanExport($ringkasan, $items, $kerusakan, $peminjaman, $from, $to),
             'laporan-inventaris-' . now()->format('Y-m-d') . '.xlsx'
         );
     }

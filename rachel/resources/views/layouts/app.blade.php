@@ -36,6 +36,15 @@
             : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
                     Data Barang
                 </a>
+                @auth
+                    <a href="{{ route('loans.index') }}"
+                        class="px-4 py-2 rounded-lg transition
+        {{ request()->routeIs('loans.*')
+            ? 'bg-blue-50 text-[#2563EB] font-bold'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-[#2563EB]' }}">
+                        Peminjaman
+                    </a>
+                @endauth
 
                 {{-- Admin dan Staff --}}
                 @can('manage-inventory')

@@ -185,6 +185,52 @@
 
     </div>
 
+    {{-- Rekap Status Peminjaman --}}
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+
+        <h3 class="text-lg font-semibold text-gray-800 mb-5">
+            Rekap Status Peminjaman
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+
+            <div>
+                <p class="text-sm text-gray-500">Total Peminjaman</p>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">
+                    {{ number_format($ringkasan['total_peminjaman']) }}
+                </h3>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Diajukan</p>
+                <h3 class="text-2xl font-bold text-yellow-600 mt-2">
+                    {{ number_format($ringkasan['rekap_peminjaman']['diajukan']) }}
+                </h3>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Disetujui</p>
+                <h3 class="text-2xl font-bold text-blue-600 mt-2">
+                    {{ number_format($ringkasan['rekap_peminjaman']['disetujui']) }}
+                </h3>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Ditolak</p>
+                <h3 class="text-2xl font-bold text-red-600 mt-2">
+                    {{ number_format($ringkasan['rekap_peminjaman']['ditolak']) }}
+                </h3>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">Dikembalikan</p>
+                <h3 class="text-2xl font-bold text-green-600 mt-2">
+                    {{ number_format($ringkasan['rekap_peminjaman']['dikembalikan']) }}
+                </h3>
+            </div>
+
+        </div>
+    </div>
 
     {{-- Tabel Data Inventaris --}}
     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
@@ -358,6 +404,107 @@
 
     </div>
 
+    {{-- Tabel Riwayat Peminjaman --}}
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
 
+        <div class="mb-5">
+            <h3 class="text-lg font-semibold text-gray-800">
+                Riwayat Peminjaman
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+                Daftar peminjaman barang berdasarkan tanggal peminjaman.
+            </p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-600">
+
+                <thead class="bg-gray-50 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3">No</th>
+                        <th class="px-4 py-3">Nama Peminjam</th>
+                        <th class="px-4 py-3">Kode Barang</th>
+                        <th class="px-4 py-3">Nama Barang</th>
+                        <th class="px-4 py-3">Jumlah Pinjam</th>
+                        <th class="px-4 py-3">Tanggal Pinjam</th>
+                        <th class="px-4 py-3">Tenggat Kembali</th>
+                        <th class="px-4 py-3">Tanggal Kembali</th>
+                        <th class="px-4 py-3">Keperluan</th>
+                        <th class="px-4 py-3">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100">
+
+                    @forelse ($peminjaman as $index => $loan)
+                        <tr class="hover:bg-gray-50">
+
+                            <td class="px-4 py-3">
+                                {{ $index + 1 }}
+                            </td>
+
+                            <td class="px-4 py-3 font-medium text-gray-800">
+                                {{ $loan->user?->name ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $loan->item?->kode_barang ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $loan->item?->nama_barang ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ number_format($loan->jumlah_pinjam) }}
+                            </td>
+
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                {{ $loan->tanggal_pinjam?->format('d-m-Y') ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                {{ $loan->tenggat_kembali?->format('d-m-Y') ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                {{ $loan->tanggal_kembali?->format('d-m-Y') ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $loan->keperluan ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                @php
+                                    $statusClass = match ($loan->status) {
+                                        'diajukan' => 'bg-yellow-100 text-yellow-700',
+                                        'disetujui' => 'bg-blue-100 text-blue-700',
+                                        'ditolak' => 'bg-red-100 text-red-700',
+                                        'dikembalikan' => 'bg-green-100 text-green-700',
+                                        default => 'bg-gray-100 text-gray-700',
+                                    };
+                                @endphp
+
+                                <span class="px-2 py-1 rounded-full {{ $statusClass }}">
+                                    {{ ucfirst($loan->status) }}
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    @empty
+                        <tr>
+                            <td colspan="10" class="px-4 py-8 text-center text-gray-500">
+                                Tidak ada riwayat peminjaman.
+                            </td>
+                        </tr>
+                    @endforelse
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 
 @endsection

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Item;
 use App\Models\ItemRusak;
+use App\Models\ItemLoan;
 
 class LaporanService
 {
@@ -79,7 +80,7 @@ class LaporanService
         return $rekap;
     }
 
-    public function getRingkasanData($items, $kerusakan)
+    public function getRingkasanData($items, $kerusakan, $peminjaman)
     {
 
         $totalJenisItem = $items->count();
@@ -100,6 +101,42 @@ class LaporanService
             'total_catatan_kerusakan' => $kerusakan->count(),
             'total_kuantitas_kerusakan' => $kerusakan->sum('jumlah_rusak'),
             'rekap_kerusakan' => $this->getRekapKerusakan($kerusakan),
+
+            'total_peminjaman' => $peminjaman->count(),
+            'rekap_peminjaman' => $this->getRekapPeminjaman($peminjaman),
         ];
+    }
+
+    public function getPeminjamanData(?string $from = null, ?string $to = null)
+    {
+        $query = ItemLoan::with(['user', 'item']);
+
+        if ($from) {
+            $query->whereDate('tanggal_pinjam', '>=', $from);
+        }
+
+        if ($to) {
+            $query->whereDate('tanggal_pinjam', '<=', $to);
+        }
+
+        return $query->orderBy('tanggal_pinjam', 'desc')->get();
+    }
+
+    public function getRekapPeminjaman($peminjaman)
+    {
+        $rekap = [
+            'diajukan' => 0,
+            'disetujui' => 0,
+            'ditolak' => 0,
+            'dikembalikan' => 0,
+        ];
+
+        foreach ($peminjaman as $loan) {
+            if (isset($rekap[$loan->status])) {
+                $rekap[$loan->status]++;
+            }
+        }
+
+        return $rekap;
     }
 }
