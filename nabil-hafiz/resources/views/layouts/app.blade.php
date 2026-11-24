@@ -63,11 +63,6 @@
                     {{-- MENU KHUSUS USER LOGIN --}}
                     @auth
 
-                        <a href="{{ route('letters.create') }}"
-                           class="px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('letters.create') ? 'bg-red-50 text-red-700 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
-                            ➕ Tambah Surat
-                        </a>
-
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
 

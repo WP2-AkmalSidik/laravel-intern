@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Letter extends Model
 {
@@ -30,18 +31,29 @@ class Letter extends Model
         ];
     }
 
+    /**
+     * Scope untuk mengambil surat masuk.
+     */
     public function scopeMasuk(Builder $query): Builder
     {
         return $query->where('jenis_surat', 'masuk');
     }
 
+    /**
+     * Scope untuk mengambil surat keluar.
+     */
     public function scopeKeluar(Builder $query): Builder
     {
         return $query->where('jenis_surat', 'keluar');
     }
 
-    public function scopeSearch(Builder $query, ?string $keyword = null): Builder
-    {
+    /**
+     * Scope untuk pencarian surat.
+     */
+    public function scopeSearch(
+        Builder $query,
+        ?string $keyword = null
+    ): Builder {
         if (empty($keyword)) {
             return $query;
         }
@@ -54,11 +66,19 @@ class Letter extends Model
         });
     }
 
-    public function scopeDisposisi(Builder $query, string $status): Builder
-    {
+    /**
+     * Scope untuk filter status disposisi surat.
+     */
+    public function scopeDisposisi(
+        Builder $query,
+        string $status
+    ): Builder {
         return $query->where('status_disposisi', $status);
     }
 
+    /**
+     * Label status surat.
+     */
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status_disposisi) {
@@ -69,6 +89,9 @@ class Letter extends Model
         };
     }
 
+    /**
+     * Label jenis surat.
+     */
     public function getJenisSuratLabelAttribute(): string
     {
         return match ($this->jenis_surat) {
@@ -78,8 +101,19 @@ class Letter extends Model
         };
     }
 
+    /**
+     * Relasi surat dengan departemen asal.
+     */
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * Relasi satu surat dengan banyak disposisi.
+     */
+    public function dispositions(): HasMany
+    {
+        return $this->hasMany(Disposition::class);
     }
 }

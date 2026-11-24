@@ -15,38 +15,68 @@ class LetterManagementTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Guest dapat melihat daftar surat,
-     * tetapi tidak dapat mengakses halaman tambah surat.
+     * Membuat user sekretaris untuk kebutuhan testing.
      */
-    public function test_guest_can_view_letters_but_cannot_access_create_page(): void
+    private function createSecretary(): User
     {
-        $response = $this->get(route('letters.index'));
+        $user = new User();
 
-        $response->assertStatus(200);
+        $user->forceFill([
+            'name' => 'Sekretaris Testing',
+            'email' => 'sekretaris.testing@example.com',
+            'password' => 'password123',
+            'role' => 'sekretaris',
+            'department_id' => null,
+        ]);
 
-        $response = $this->get(route('letters.create'));
+        $user->save();
 
-        $response->assertRedirect(route('login'));
+        return $user->fresh();
     }
 
     /**
-     * Staf yang login dapat menyimpan surat beserta file PDF.
+     * Membuat departemen untuk kebutuhan testing.
      */
-    public function test_authenticated_staff_can_store_letter_with_pdf(): void
+    private function createDepartment(): Department
     {
-        Storage::fake('public');
-
-        $user = User::create([
-            'name' => 'Admin Testing',
-            'email' => 'admin.testing@example.com',
-            'password' => 'password123',
-        ]);
-
-        $department = Department::create([
+        return Department::create([
             'nama_departemen' => 'Human Resource',
             'kode_departemen' => 'DEP-HRD',
             'kepala_departemen' => 'Andi',
         ]);
+    }
+
+    /**
+     * Guest tidak dapat mengakses halaman daftar surat
+     * maupun halaman tambah surat.
+     */
+    public function test_guest_cannot_access_letters_pages(): void
+    {
+        $this->get(route('letters.index'))
+            ->assertRedirect(route('login'));
+
+        $this->get(route('letters.create'))
+            ->assertRedirect(route('login'));
+    }
+
+    /**
+     * Sekretaris dapat menyimpan surat beserta file PDF.
+     */
+    public function test_authenticated_secretary_can_store_letter_with_pdf(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->createSecretary();
+        $department = $this->createDepartment();
+
+        // Pastikan role sekretaris tersimpan.
+        $this->assertSame('sekretaris', $user->role);
+
+        // Pastikan Gate mengizinkan sekretaris mengelola surat.
+        $this->assertTrue(
+            \Illuminate\Support\Facades\Gate::forUser($user)
+                ->allows('manage-letters')
+        );
 
         $file = UploadedFile::fake()->create(
             'surat_edaran.pdf',
@@ -77,7 +107,10 @@ class LetterManagementTest extends TestCase
             'department_id' => $department->id,
         ]);
 
-        $letter = Letter::where('nomor_surat', '001/TEST/2026')->firstOrFail();
+        $letter = Letter::where(
+            'nomor_surat',
+            '001/TEST/2026'
+        )->firstOrFail();
 
         $this->assertNotNull($letter->file_surat);
 
@@ -89,11 +122,8 @@ class LetterManagementTest extends TestCase
      */
     public function test_duplicate_letter_number_is_rejected(): void
     {
-        $user = User::create([
-            'name' => 'Admin Testing',
-            'email' => 'duplicate.testing@example.com',
-            'password' => 'password123',
-        ]);
+        $user = $this->createSecretary();
+        $department = $this->createDepartment();
 
         $data = [
             'nomor_surat' => '002/TEST/2026',
@@ -103,14 +133,16 @@ class LetterManagementTest extends TestCase
             'jenis_surat' => 'masuk',
             'status_disposisi' => 'belum_diproses',
             'tanggal_surat' => '2026-11-18',
+            'department_id' => $department->id,
         ];
 
+        // Membuat surat pertama.
         $this->actingAs($user)
             ->post(route('letters.store'), $data)
             ->assertRedirect(route('letters.index'));
 
-        $response = $this->actingAs($user)
-            ->from(route('letters.create'))
+        // Mencoba menyimpan nomor surat yang sama.
+        $response = $this->from(route('letters.create'))
             ->post(route('letters.store'), $data);
 
         $response->assertRedirect(route('letters.create'));
@@ -119,6 +151,7 @@ class LetterManagementTest extends TestCase
             'nomor_surat',
         ]);
 
+        // Memastikan hanya satu surat yang tersimpan.
         $this->assertDatabaseCount('letters', 1);
     }
 }

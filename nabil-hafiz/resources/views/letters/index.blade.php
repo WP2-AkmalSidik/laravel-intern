@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Daftar Surat')
@@ -10,12 +11,13 @@
         <p class="mt-1 text-gray-500">Kelola data surat masuk dan surat keluar.</p>
     </div>
 
-    @auth
+    {{-- Tombol tambah surat hanya untuk sekretaris --}}
+    @if (auth()->user()->role === 'sekretaris')
         <a href="{{ route('letters.create') }}"
            class="rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700">
             + Tambah Surat
         </a>
-    @endauth
+    @endif
 </div>
 
 @if (session('success'))
@@ -138,12 +140,14 @@
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
 
+                            {{-- Semua role yang memiliki akses dapat melihat detail --}}
                             <a href="{{ route('letters.show', $letter) }}"
                                class="text-blue-600 hover:underline">
                                 Detail
                             </a>
 
-                            @auth
+                            {{-- Edit dan hapus hanya untuk sekretaris --}}
+                            @if (auth()->user()->role === 'sekretaris')
                                 <a href="{{ route('letters.edit', $letter) }}"
                                    class="text-amber-600 hover:underline">
                                     Edit
@@ -161,7 +165,7 @@
                                         Hapus
                                     </button>
                                 </form>
-                            @endauth
+                            @endif
 
                         </div>
                     </td>

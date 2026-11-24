@@ -13,8 +13,27 @@ class Department extends Model
         'kepala_departemen',
     ];
 
+    /**
+     * Relasi departemen dengan surat.
+     */
     public function letters(): HasMany
     {
         return $this->hasMany(Letter::class);
+    }
+
+    /**
+     * Relasi departemen dengan pengguna.
+     */
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
+    /**
+     * Relasi departemen dengan disposisi.
+     */
+    public function dispositions(): HasMany
+    {
+        return $this->hasMany(Disposition::class);
     }
 }

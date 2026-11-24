@@ -58,7 +58,10 @@ class LetterSeeder extends Seeder
         ];
 
         foreach ($letters as $letter) {
-            Letter::create($letter);
+            Letter::updateOrCreate(
+                ['nomor_surat' => $letter['nomor_surat']],
+                $letter
+            );
         }
     }
 }

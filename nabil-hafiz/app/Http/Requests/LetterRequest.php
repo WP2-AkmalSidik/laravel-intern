@@ -13,6 +13,7 @@ class LetterRequest extends FormRequest
         return true;
     }
 
+
     public function rules(): array
     {
         return [
@@ -20,18 +21,19 @@ class LetterRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('letters', 'nomor_surat')->ignore($this->route('letter')),
+                Rule::unique('letters', 'nomor_surat')
+                    ->ignore($this->route('letter')),
             ],
             'perihal' => ['required', 'string', 'max:255'],
             'pengirim' => ['required', 'string', 'max:255'],
             'penerima' => ['required', 'string', 'max:255'],
             'jenis_surat' => ['required', 'in:masuk,keluar'],
-            'status_disposisi' => ['required', 'in:belum_diproses,diproses,selesai'],
             'tanggal_surat' => ['required', 'date'],
             'department_id' => ['nullable', 'exists:departments,id'],
             'file_surat' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
         ];
     }
+
 
     public function messages(): array
     {
