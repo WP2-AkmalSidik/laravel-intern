@@ -91,9 +91,9 @@ php artisan migrate
 
 ## 👥 Status Pengumpulan Tugas Peserta
 
-| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Status Fase 2 | Status Fase 3 | Keterangan & Pengujian |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai** | 🌟 **Benchmark** | 🌟 **Benchmark** | 12 Tests Passed |
-| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (95)** | ✅ **Lulus (98)** | ✅ **Lulus (99)** | 🌟 **100 Tests Passed** (Loan, RBAC, Services, Export) |
-| **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **Lulus (78)** | ✅ **Lunas (80)** | ✅ **Lulus (94)** | 🌟 **20 Tests Passed** (Loan Sirkulasi, Denda, Cover Upload) |
-| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Lulus (83)** | ✅ **Lulus (92)** | ✅ **Lulus (96)** | 🌟 **30 Tests Passed** (Disposisi Workflow, RBAC, Lock) |
+| Nama Peserta | Folder Kerja | Branch Kerja | Status Fase 1 | Status Fase 2 | Status Fase 3 | Status Fase 4 (Capstone) | Keterangan & Pengujian |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai** | 🌟 **Benchmark** | 🌟 **Benchmark** | 🌟 **Benchmark** | 12 Tests Passed |
+| **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (95)** | ✅ **Lulus (98)** | ✅ **Lulus (99)** | 🏆 **Lulus Sempurna (100)** | 🌟 **123 Tests Passed** (Sanctum, Queues, Observer Cache, RBAC) |
+| **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **Lulus (78)** | ✅ **Lunas (80)** | ✅ **Lulus (94)** | 🌟 **Lulus Gemilang (98)** | 🌟 **29 Tests Passed** (Sanctum, BookResource, Queued Mail, WithoutVite) |
+| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Lulus (83)** | ✅ **Lulus (92)** | ✅ **Lulus (96)** | ⏳ **Pengerjaan PR** | 🌟 **30 Tests Passed** (Disposisi Workflow, RBAC, Lock) |
