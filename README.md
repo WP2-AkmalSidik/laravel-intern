@@ -96,4 +96,4 @@ php artisan migrate
 | **Akmal (Benchmark)** | `akmal/` | `main` | ✅ **Selesai** | 🌟 **Benchmark** | 🌟 **Benchmark** | 🌟 **Benchmark** | 12 Tests Passed |
 | **Rachel** | `rachel/` | `intern/rachel` | ✅ **Lulus (95)** | ✅ **Lulus (98)** | ✅ **Lulus (99)** | 🏆 **Lulus Sempurna (100)** | 🌟 **123 Tests Passed** (Sanctum, Queues, Observer Cache, RBAC) |
 | **Ridwan** | `ridwan/` | `intern/ridwan` | ✅ **Lulus (78)** | ✅ **Lunas (80)** | ✅ **Lulus (94)** | 🌟 **Lulus Gemilang (98)** | 🌟 **29 Tests Passed** (Sanctum, BookResource, Queued Mail, WithoutVite) |
-| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Lulus (83)** | ✅ **Lulus (92)** | ✅ **Lulus (96)** | ⏳ **Pengerjaan PR** | 🌟 **30 Tests Passed** (Disposisi Workflow, RBAC, Lock) |
+| **Nabil Hafiz** | `nabil-hafiz/` | `intern/nabil-hafiz` | ✅ **Lulus (83)** | ✅ **Lulus (92)** | ✅ **Lulus (96)** | 🏆 **Lulus Sempurna (99)** | 🌟 **33 Tests Passed** (Sanctum API, Queued Notifications, Caching) |
