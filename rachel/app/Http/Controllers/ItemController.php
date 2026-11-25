@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class ItemController extends Controller
 {
@@ -54,7 +55,9 @@ class ItemController extends Controller
             'rusak' => Item::where('kondisi', 'rusak_berat')->count(),
             'baik' => Item::where('kondisi', 'baik')->count(),
         ];
-        $categories = Category::orderBy('nama')->get();
+        $categories = Cache::remember('master_categories', 3600, function () {
+            return Category::orderBy('nama')->get();
+        });
         return view('items.index', compact(
             'kondisiFilter',
             'searchKeyword',

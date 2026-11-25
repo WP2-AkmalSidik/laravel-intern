@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Category;
+use App\Observers\CategoryObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,6 +17,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Daftarkan Category Observer
+        Category::observe(CategoryObserver::class);
+
         // Admin dan Staff boleh mengelola operasional inventaris
         Gate::define('manage-inventory', function (User $user) {
             return in_array($user->role, ['admin', 'staff'], true);
@@ -31,5 +36,6 @@ class AppServiceProvider extends ServiceProvider
             fn(User $user) =>
                 $user->role === 'admin'
         );
+
     }
 }
