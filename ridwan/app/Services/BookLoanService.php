@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\BookBorrowedNotification;
 
 class BookLoanService
 {
@@ -21,19 +22,22 @@ class BookLoanService
         }
 
         return DB::transaction(function () use ($member, $book) {
-            $loan = Loan::create([
-                'user_id'         => $member->id,
-                'book_id'         => $book->id,
-                'tanggal_pinjam'  => now()->toDateString(),
-                'tenggat_kembali' => now()->addDays(7)->toDateString(),
-                'status'          => 'dipinjam',
-                'denda'           => 0,
-            ]);
+    $loan = Loan::create([
+        'user_id'         => $member->id,
+        'book_id'         => $book->id,
+        'tanggal_pinjam'  => now()->toDateString(),
+        'tenggat_kembali' => now()->addDays(7)->toDateString(),
+        'status'          => 'dipinjam',
+        'denda'           => 0,
+    ]);
 
-            $book->update(['status' => 'dipinjam']);
+    $book->update(['status' => 'dipinjam']);
 
-            return $loan;
-        });
+    // ✅ Kirim notifikasi email asynchronous ke peminjam
+    $member->notify(new BookBorrowedNotification($loan));
+
+    return $loan;
+});
     }
 
     /**

@@ -3,64 +3,36 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BookResource;
 use App\Models\Book;
-use App\Http\Requests\BookRequest;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $books = Book::latest()
-            ->search($request->query('search'))
-            ->status($request->query('status'))
+        $books = Book::with('category')
+            ->search($request->search)
+            ->status($request->status)
+            ->latest()
             ->paginate(10);
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Daftar buku berhasil diambil',
-            'data'    => $books
-        ], 200);
-    }
-
-    public function store(BookRequest $request)
-    {
-        $book = Book::create($request->validated());
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Buku baru berhasil ditambahkan!',
-            'data'    => $book
-        ], 201);
+        return BookResource::collection($books);
     }
 
     public function show(Book $book)
     {
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Detail buku berhasil diambil',
-            'data'    => $book
-        ], 200);
+        $book->load('category');
+        return new BookResource($book);
     }
 
-    public function update(BookRequest $request, Book $book)
+    public function myLoans(Request $request)
     {
-        $book->update($request->validated());
+        $user = $request->user();
+        $loans = $user->loans()->with('book')->latest()->get();
 
         return response()->json([
-            'status'  => 'success',
-            'message' => 'Data buku berhasil diperbarui!',
-            'data'    => $book
-        ], 200);
-    }
-
-    public function destroy(Book $book)
-    {
-        $book->delete();
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Buku berhasil dihapus!'
-        ], 200);
+            'data' => $loans
+        ]);
     }
 }

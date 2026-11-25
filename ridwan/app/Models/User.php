@@ -7,38 +7,41 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable; // ✅ Tambahkan HasApiTokens di sini
 
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
-   protected $fillable = [
-    'name',
-    'email',
-    'password',
-    'role', // ✅ Wajib ada agar role bisa disimpan
-];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+    ];
 
-// Helper method untuk mempermudah pengecekan hak akses
-public function isLibrarian(): bool
-{
-    return $this->role === 'librarian';
-}
+    // Helper method untuk mempermudah pengecekan hak akses
+    public function isLibrarian(): bool
+    {
+        return $this->role === 'librarian';
+    }
 
-public function isMember(): bool
-{
-    return $this->role === 'member';
-}
-public function loans()
-{
-    return $this->hasMany(Loan::class);
-}
+    public function isMember(): bool
+    {
+        return $this->role === 'member';
+    }
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
