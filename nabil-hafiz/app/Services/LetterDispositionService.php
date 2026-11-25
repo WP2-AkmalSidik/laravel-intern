@@ -7,19 +7,18 @@ use App\Models\Letter;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\NewDispositionNotification;
+use Illuminate\Support\Facades\Notification;
 
 class LetterDispositionService
 {
     /**
      * Membuat disposisi baru.
      */
-    public function createDisposition(
-        Letter $letter,
-        array $data,
-        User $pimpinan
-    ): Disposition {
-        return DB::transaction(function () use ($letter, $data, $pimpinan) {
 
+    public function createDisposition(Letter $letter, array $data, User $pimpinan): Disposition
+    {
+        return DB::transaction(function () use ($letter, $data, $pimpinan) {
             $letter = Letter::whereKey($letter->id)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -42,9 +41,21 @@ class LetterDispositionService
                 'status_disposisi' => 'diproses',
             ]);
 
+            // Ambil seluruh pengguna departemen tujuan.
+            $disposition->load(['letter', 'department']);
+
+            $recipients = $disposition->department->users;
+
+            // Kirim notifikasi email melalui queue.
+            Notification::send(
+                $recipients,
+                new NewDispositionNotification($disposition)
+            );
+
             return $disposition;
         });
     }
+
 
     /**
      * Memperbarui status tindak lanjut disposisi.

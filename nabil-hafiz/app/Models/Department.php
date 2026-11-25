@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class Department extends Model
 {
@@ -36,4 +37,16 @@ class Department extends Model
     {
         return $this->hasMany(Disposition::class);
     }
+
+    protected static function booted(): void
+    {
+        static::saved(function ($department) {
+            Cache::forget('master_departments');
+        });
+
+        static::deleted(function ($department) {
+            Cache::forget('master_departments');
+        });
+    }
+
 }
