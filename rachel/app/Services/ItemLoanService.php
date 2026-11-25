@@ -5,57 +5,55 @@ use App\Models\Item;
 use App\Models\ItemLoan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\LoanStatusNotification;
 
 class ItemLoanService
 {
 
     public function setujui(ItemLoan $loan): ItemLoan
     {
-        return DB::transaction(function () use ($loan) {
+        $loan = DB::transaction(function () use ($loan) {
 
-            // Kunci data peminjaman agar tidak diproses bersamaan
             $loan = ItemLoan::whereKey($loan->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // Pastikan pengajuan masih berstatus diajukan
             if ($loan->status !== 'diajukan') {
                 throw ValidationException::withMessages([
                     'status' => 'Pengajuan peminjaman ini sudah diproses.',
                 ]);
             }
 
-            // Kunci data barang
             $item = Item::whereKey($loan->item_id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // Periksa stok barang yang kondisinya masih baik
             if ($item->stok_baik < $loan->jumlah_pinjam) {
                 throw ValidationException::withMessages([
                     'jumlah_pinjam' => 'Stok barang yang tersedia tidak mencukupi.',
                 ]);
             }
 
-            // Kurangi stok barang
             $item->decrement('jumlah_stok', $loan->jumlah_pinjam);
 
-            // Perbarui kondisi barang setelah stok berkurang
             $item->refresh();
             $item->hitungKondisi();
 
-            // Ubah status peminjaman
             $loan->update([
                 'status' => 'disetujui',
             ]);
 
             return $loan->load(['user', 'item']);
         });
+
+        $loan->user->notify(new LoanStatusNotification($loan));
+
+        return $loan;
     }
 
     public function tolak(ItemLoan $loan): ItemLoan
     {
-        return DB::transaction(function () use ($loan) {
+        $loan = DB::transaction(function () use ($loan) {
 
             $loan = ItemLoan::whereKey($loan->id)
                 ->lockForUpdate()
@@ -73,6 +71,10 @@ class ItemLoanService
 
             return $loan->load(['user', 'item']);
         });
+
+        $loan->user->notify(new LoanStatusNotification($loan));
+
+        return $loan;
     }
 
     public function kembalikan(ItemLoan $loan): ItemLoan
