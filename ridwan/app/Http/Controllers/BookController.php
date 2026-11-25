@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Http\Requests\BookRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class BookController extends Controller
 {
@@ -21,8 +22,11 @@ class BookController extends Controller
 
     public function create()
     {
-        // ✅ FIX: Kirim $categories ke view create.blade.php
-        $categories = Category::all();
+        // ✅ MISI 3: Gunakan Cache 1 jam (3600 detik) untuk query kategori
+        $categories = Cache::remember('book_categories', 3600, function () {
+            return Category::orderBy('nama')->get();
+        });
+
         return view('books.create', compact('categories'));
     }
 
@@ -30,7 +34,6 @@ class BookController extends Controller
     {
         $data = $request->validated();
 
-        // ✅ FIX: Simpan file cover_buku jika di-upload
         if ($request->hasFile('cover_buku')) {
             $data['cover_buku'] = $request->file('cover_buku')->store('covers', 'public');
         }
@@ -47,8 +50,11 @@ class BookController extends Controller
 
     public function edit(Book $book)
     {
-        // ✅ FIX: Kirim $categories ke view edit.blade.php
-        $categories = Category::all();
+        // ✅ MISI 3: Gunakan Cache 1 jam (3600 detik) untuk query kategori
+        $categories = Cache::remember('book_categories', 3600, function () {
+            return Category::orderBy('nama')->get();
+        });
+
         return view('books.edit', compact('book', 'categories'));
     }
 
@@ -56,7 +62,6 @@ class BookController extends Controller
     {
         $data = $request->validated();
 
-        // ✅ FIX: Update file cover_buku jika ada upload baru
         if ($request->hasFile('cover_buku')) {
             if ($book->cover_buku) {
                 Storage::disk('public')->delete($book->cover_buku);
